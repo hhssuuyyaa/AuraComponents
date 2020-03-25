@@ -1,0 +1,188 @@
+Agenda:
+---------------
+1. force:hasRecordId
+2. force:hasSObjectName
+3. lightning:actionOverride
+
+
+
+lightning:actionOverride : 
+
+To Override the standard buttons with custom lightning components.
+
+force:hasRecordId  : To get the Id of the record in record edit page.
+ - attribute : recordId
+ 
+force:hasSObjectName : To get the object name of that record.
+
+  - attribute : sObjectName
+  
+ 
+Classic:
+---------------
+VF page:
+
+AccNewVF - pageName
+
+<apex page standardcontroller="Account">
+
+</apex:page>
+
+
+
+component:
+---------------
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride,force:hasSObjectName" access="global" >
+    <aura:attribute name="acc" type="Account" default="{'sobjectType':'Account'}"/>
+    
+    <div style="margin-left:100px;width:500px;border:1px solid black;margin-top:50px;">
+    	<lightning:card title="New Customer" iconName="standard:account">
+            <aura:set attribute="actions">
+                <lightning:button label="Save" />
+                <lightning:button label="Cancel" />
+            </aura:set>
+            <div style="padding:30px;">
+            	<lightning:input label="Name" value="{!v.acc.Name}"/>
+                <lightning:input label="Phone" value="{!v.acc.Phone}"/>
+                <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
+
+
+ 
+ 
+ Steps to Override any standard action of an account:
+ 
+ setup -> Platform tools -> objects ans Fields -> object Manager -> choose the object "Account" -> Button links and actions -> Edit the standard action "New".
+ 
+ 
+ force:hasRecordId  : To get the Id of the record in record edit page.
+ - attribute : recordId
+ 
+ 
+ Component:
+ -----------
+ <aura:component controller="ContactCountController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride,force:hasSObjectName" access="global" >
+    <aura:attribute name="strcount" type="string" />
+    <aura:handler name="init" value="{!this}" action="{!c.invoke}"/>
+    <div style="background-color:white;height:40px;">
+    	<p style="margin-left:100px;color:green;font-size:20px;">Number of Contacts for an existing account is : {!v.strcount}</p>
+    </div>
+</aura:component>
+
+
+Controller JS:
+---------------
+
+({
+	invoke : function(component, event, helper) {
+		var accRecordId = component.get("v.recordId"); // Returns id of the record.
+        console.log('accRecordId -->'+accRecordId)
+        var action = component.get("c.returnCount");
+        action.setParams({"accId":accRecordId});
+        action.setCallback(this,function(response){
+           	var state = response.getState();
+            console.log('state -->'+state);
+            if(state == 'SUCCESS'){ 
+                var res = response.getReturnValue();
+                console.log('response-->'+res);
+                component.set("v.strcount",res);
+            }
+        }); 
+        $A.enqueueAction(action);
+	}
+})
+
+
+Apex class:
+---------------
+public class ContactCountController {
+	@auraEnabled
+    public static Integer returnCount(String accId){
+        List<Contact> lstC =  [SELECT Id,AccountID From Contact WHERE AccountID =: accId];
+        return lstC.size(); 
+    } 
+}
+
+
+
+ 
+ Classic:
+ ---------------
+ URL:
+ /0012v00002b7dmdAAA/view
+ 
+ <apex:page standardcontroller="Account">
+		{!Account.Id}
+ </apex:page>
+ 
+ 
+ 
+ force:hasSObjectName : To get the object name of that record.
+
+  - attribute : sObjectName
+  
+  
+ Component:
+ ---------------
+ 
+ <aura:component controller="RecentDataController" implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride,force:hasSObjectName" access="global">
+    <aura:attribute name="myColumns" type="List"/>
+    <aura:attribute name="lstData" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.invoke}"/>
+    
+    <div style="width:500px;"> 
+    	<lightning:dataTable
+                             keyField="Id" 
+                             data="{!v.lstData}" 
+                             columns="{!v.myColumns}" />
+    </div>
+</aura:component>
+
+
+Controller JS:
+---------------
+
+({
+	invoke : function(component, event, helper) {
+		var sobjName = component.get("v.sObjectName");
+        console.log('object name ->'+sobjName); 
+        var cols = [
+            {label:"Name",fieldName:"Name",type:"text"}
+        ];
+        component.set("v.myColumns",cols);
+        
+        
+        var action = component.get("c.get10Records");
+        action.setParams({"objName":sobjName});
+        action.setCallback(this,function(response){
+           var state = response.getState(); 
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != ''){
+                    component.set("v.lstData",res); 
+                }
+            }
+        });
+        $A.enqueueAction(action);
+        
+	}
+})
+
+
+Apex Class:
+--------------
+
+public class RecentDataController {
+	@auraEnabled
+    public static List<Sobject> get10Records(String objName){
+        string strQuery = 'SELECT ID,Name FROM '+objName+' ORDER BY CreatedDate DESC LIMIT 10';
+        // SELECT ID,Name FROM Sobject ORDER BY CreatedDate DESC Limit 10
+        return database.Query(strQuery); 
+    }
+}
+----------------------------------------------------------------------------
+ 

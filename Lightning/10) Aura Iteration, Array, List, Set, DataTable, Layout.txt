@@ -1,0 +1,596 @@
+Agenda:
+----------
+1. <aura:iteration>
+2. How to declare array, List, Set variables as an attribute.
+3. How to use <lightning:datatable/>
+4. How to use <lightning:layout/> and <lightning:layoutItem />
+
+--------------------------------------------------------------------
+<aura:iteration> = <apex:repeat />
+
+<aura:attribute name="Countries" type="string[]" />
+<aura:attribute name="Cities" type="set" />
+<aura:attribute name="Age" type="List" />
+
+Ex1:
+
+Application:
+-----------------
+<aura:application extends="force:slds">
+    <aura:attribute name="Ages" type="integer[]" default="[30,40,50,60,70]"/>
+    <aura:attribute name="Countries" type="List" default="['INDIA','INDIA','AUSTRALIA','DUBAI','UK','US']"/>
+    <aura:attribute name="Cities" type="set" default="['Hyderabad','Sydney','Hyderabad','Chennai','Delhi']"/>
+    
+    <div style="margin-left:100px;margin-top:100px;width:100px;border:1px solid green;">
+    	<aura:iteration items="{!v.Ages}" var="age">
+            <p>{!age}</p>
+        </aura:iteration> 
+    </div>
+    
+	<div style="margin-left:100px;margin-top:20px;width:150px;border:1px solid black;">
+    	<aura:iteration items="{!v.Countries}" var="c">
+            <p>{!c}</p>
+        </aura:iteration> 
+    </div>    
+    
+    <div style="margin-left:100px;margin-top:20px;width:150px;border:1px solid black;">
+    	<aura:iteration items="{!v.Cities}" var="c">
+            <p>{!c}</p>
+        </aura:iteration> 
+    </div> 
+    
+</aura:application>
+
+
+
+Ex2:
+-----
+
+VF : <apex:repeat/>
+Lightning: <aura:iteration>
+
+
+Application:
+-------------
+<aura:application extends="force:slds" controller="CustomersData">
+    <aura:attribute name="lstAccounts" type="List" />
+    <aura:attribute name="flag" type="boolean" default="false" />
+    
+    <div class="btnCss">
+    	<lightning:button label="Show Customers" onclick="{!c.showData}"/>
+    </div>
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="width:500px;margin-left:100px;margin-top:100px;">
+    	<table style="border:1px solid black;">
+        	<tr style="border:1px solid green;">
+            	<td>
+                	<b>Name</b>
+                </td>
+                <td>
+                	<b>Phone</b>
+                </td>
+                <td>
+                	<b>Industry</b>
+                </td>
+            </tr>
+            <aura:iteration items="{!v.lstAccounts}" var="acc">
+            	<tr>
+                	<td>
+                        	{!acc.Name}
+                    </td>
+                    <td>
+                        	{!acc.Phone}
+                    </td>
+                    <td>
+                        	{!acc.Industry}
+                    </td>
+                </tr>
+            </aura:iteration>
+        </table>
+    </div>
+    </aura:if>
+    
+    
+</aura:application>
+
+
+Controller JS:
+----------------
+
+({
+	showData : function(component, event, helper) {
+		var action = component.get("c.getAccounts");
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state === 'SUCCESS'){
+                var result = response.getReturnValue();
+                component.set("v.lstAccounts",result);
+                component.set("v.flag",true);
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+Styles:
+--------
+
+.THIS.btnCss {
+    margin-left:100px;
+    margin-top:50px;
+}
+
+
+
+Apex Class:
+-------------
+
+public class CustomersData {
+	@auraEnabled 
+    public static List<Account> getAccounts(){
+        return [SELECT id,Name,Phone,Industry FROM ACCOUNT limit 10];
+    }
+}
+
+
+-------------------------------------------------------------
+VF: <apex:pageblockTable>
+
+Lightning: <lightning:datatable>
+------------------------------------
+
+<div style="height: 300px">
+        <lightning:datatable
+                keyField="id"
+                data="{! v.data }"
+                columns="{! v.columns }"
+                hideCheckboxColumn="true"/>
+    </div>
+
+
+	
+How to prepare columns:
+-------------------------
+Controller JS:
+------------------
+
+var cols = [
+	{label: 'Account name', fieldName: 'Name', type: 'text'},
+	{label: 'Account Phone', fieldName: 'Phone', type: 'text'},
+	{label: 'Industry', fieldName: 'Industry', type: 'text'}
+];
+
+
+
+Ex:
+-----
+Application:
+------------------
+
+<aura:application extends="force:slds" controller="CustomersData">
+    <aura:attribute name="lstAccounts" type="List" />
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="flag" type="boolean" default="false" />
+    
+    <div class="btnCss">
+    	<lightning:button label="Show Customers" onclick="{!c.showData}"/>
+    </div>
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="width:500px;margin-left:100px;margin-top:100px;border:1px solid green;">
+    		<lightning:datatable
+                keyField="id"
+                data="{! v.lstAccounts }"
+                columns="{! v.columns }"
+                hideCheckboxColumn="false"/>
+    	</div>
+    </aura:if>
+    
+</aura:application>
+
+
+CONTROLLER JS:
+
+
+
+({
+	showData : function(component, event, helper) {
+        var cols = [
+            {label: 'Account name', fieldName: 'Name', type: 'text'},
+            {label: 'Account Phone', fieldName: 'Phone', type: 'text'},
+            {label: 'Industry', fieldName: 'Industry', type: 'text'}
+        ];
+        component.set("v.columns",cols);
+        
+		var action = component.get("c.getAccounts");
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state === 'SUCCESS'){
+                var result = response.getReturnValue();
+                component.set("v.lstAccounts",result);
+                component.set("v.flag",true);
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+Styles:
+
+
+.THIS.btnCss {
+    margin-left:100px;
+    margin-top:50px;
+}
+
+
+Apex Class:
+
+public class CustomersData {
+	@auraEnabled 
+    public static List<Account> getAccounts(){
+        return [SELECT id,Name,Phone,Industry FROM ACCOUNT limit 10];
+    }
+}
+
+
+
+------------------------------------------------------
+Ex3:
+
+How to display wrapper records using <lightning:datatable />
+
+Apex Class:
+-------------
+public class CustomersData {
+	@auraEnabled  
+    public static List<wrapData> getAccounts(){
+        List<wrapData> lstw = new List<wrapData>();
+        for(Account objA : [SELECT id,Name,Phone,Industry FROM ACCOUNT limit 10]){
+            wrapData objw = new wrapData();
+            objw.accName = objA.Name;
+            objw.accPhone = objA.Phone;
+            objw.accIndustry = objA.Industry;
+            lstw.add(objw);
+        }
+        return lstw; 
+    }
+    
+    public class wrapData{
+        @auraEnabled public string accName;
+        @auraEnabled public string accPhone;
+        @auraEnabled public string accIndustry;
+    }
+}
+
+
+
+Application:
+
+<aura:application extends="force:slds" controller="CustomersData">
+    <aura:attribute name="lstAccounts" type="CustomersData.wrapData[]" />
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="flag" type="boolean" default="false" />
+     
+    <div class="btnCss">
+    	<lightning:button label="Show Customers" onclick="{!c.showData}"/>
+    </div>
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="width:500px;margin-left:100px;margin-top:100px;border:1px solid green;">
+    		<lightning:datatable
+                keyField="id"
+                data="{! v.lstAccounts }"
+                columns="{! v.columns }"
+                hideCheckboxColumn="false"/>
+    	</div>
+    </aura:if>
+    
+</aura:application>
+
+
+
+Controller JS:
+
+
+({
+	showData : function(component, event, helper) {
+        var cols = [ 
+            {label: 'Account name', fieldName: 'accName', type: 'text'},
+            {label: 'Account Phone', fieldName: 'accPhone', type: 'text'},
+            {label: 'Industry', fieldName: 'accIndustry', type: 'text'}
+        ];
+        component.set("v.columns",cols);
+        
+		var action = component.get("c.getAccounts");
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state === 'SUCCESS'){
+                var result = response.getReturnValue();
+                component.set("v.lstAccounts",result);
+                component.set("v.flag",true);
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+Styles:
+---------
+
+.THIS.btnCss {
+    margin-left:100px;
+    margin-top:50px; 
+}
+
+
+--------------------------------------------------------
+VF:
+<apex:pageblocksection>
+<apex:pageblocksectionItem>
+
+
+Lightning:
+<lightning:layout>
+<lightning:layoutItem>
+
+
+Ex1:
+
+<aura:application extends="force:slds">
+	<lightning:layout multipleRows="true">
+    	<lightning:layoutItem size="6">
+            <div style="border:1px solid black;">
+            	Hello, this is the lightning layout item of size 6.
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="4">
+        	<div style="border:1px solid black;">
+            	Hello, this is the lightning layout item of size 4.
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="12">
+        	<div style="border:1px solid black;">
+            	Hello, this is the lightning layout item of size 12.
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="4">
+        	<div style="border:1px solid black;">
+            	Hello, this is the lightning layout item of size 4.
+            </div>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="8">
+        	<div style="border:1px solid black;">
+            	Hello, this is the lightning layout item of size 8.
+            </div>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:application>
+
+---------------------------------
+
+Ex2:
+
+Application:
+-------------
+<aura:application extends="force:slds" controller="LayoutClass">
+    <aura:attribute name="lstAccounts" type="List"/>
+    <aura:attribute name="lstContacts" type="List"/>
+    <aura:attribute name="accountcolumns" type="List"/>
+    <aura:attribute name="contactcolumns" type="List" />
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}"/>
+     
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="4">
+            
+            <div style="width:500px;margin-left:50px;margin-top:100px;border:1px solid green;">
+                <lightning:card title="Accounts" iconName="standard:account">
+                    <lightning:datatable
+                                         keyField="id"
+                                         data="{! v.lstAccounts }"
+                                         columns="{! v.accountcolumns }"
+                                         hideCheckboxColumn="false"/>
+                </lightning:card>
+            </div>
+            
+            
+        </lightning:layoutItem>
+        <lightning:layoutItem size="4">
+            
+            <div style="width:500px;margin-left:100px;margin-top:100px;border:1px solid green;">
+                <lightning:card title="Contacts" iconName="standard:contact">
+                    <lightning:datatable
+                                         keyField="id"
+                                         data="{! v.lstContacts }"
+                                         columns="{! v.contactcolumns }"
+                                         hideCheckboxColumn="false"/> 
+                </lightning:card>
+            </div>
+            
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+</aura:application>
+
+
+controller JS:
+
+
+({
+	doinit : function(component, event, helper) {
+		// Get Accounts
+		var cols1 = [
+            {label: 'Account name', fieldName: 'Name', type: 'text'},
+            {label: 'Account Phone', fieldName: 'Phone', type: 'text'},
+            {label: 'Industry', fieldName: 'Industry', type: 'text'}
+        ];
+        component.set("v.accountcolumns",cols1);
+        
+        var action1 = component.get("c.getAccounts");
+        action1.setCallback(this,function(response1){
+           	var state1 = response1.getState();
+            if(state1 == 'SUCCESS'){
+                component.set("v.lstAccounts",response1.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action1); 
+		// Get Contacts
+		var cols2 = [
+            {label: 'Contact name', fieldName: 'LastName', type: 'text'},
+            {label: 'Email', fieldName: 'Email', type: 'text'}
+        ];
+        component.set("v.contactcolumns",cols2);
+        
+        var action2 = component.get("c.getContacts");
+        action2.setCallback(this,function(response2){
+           	var state2 = response2.getState();
+            if(state2 == 'SUCCESS'){
+                component.set("v.lstContacts",response2.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action2);  
+	}
+})
+
+
+
+Apex Class:
+--------------
+
+public class LayoutClass {
+	@auraEnabled 
+    public static List<Account> getAccounts(){
+        return [SELECT ID,Name,Phone,Industry FROM ACCOUNT Limit 5];
+    }
+    
+    @auraEnabled
+    public static List<Contact> getContacts(){
+        return [SELECT ID,LastName,Email FROM Contact Limit 5];
+    }
+}
+
+
+-----------------------------------------------
+Ex 3:
+------
+Display data using wrapper class:
+-----------------------------------
+Apex Class:
+------------
+public class LayoutClass {
+	@auraEnabled 
+    public static List<wrapData> getData(){
+        List<wrapData> lstw = new List<wrapData>();
+        List<Account> lstA = [SELECT ID,Name,Phone,Industry FROM ACCOUNT Limit 5]; // 5
+        List<Contact> lstC = [SELECT ID,LastName,Email FROM Contact Limit 5]; // 2
+        Integer count = 0;
+        if(lstA.size() < lstC.size()){
+            count = lstA.size();
+        }else{
+            count = lstC.size();
+        }
+        
+        for(integer i=0;i<count;i++){
+            wrapData objw = new wrapData();
+            objw.accName = lstA[i].Name;
+            objw.accPhone = lstA[i].Phone;
+            objw.accIndustry = lstA[i].Industry;
+            objw.conLastName = lstC[i].LastName;
+            objw.conEmail = lstC[i].Email;
+            lstw.add(objw);
+        }
+        return lstw;
+    }
+    
+    
+    public class wrapData{
+        @auraEnabled public String accName;
+        @auraEnabled public String accPhone;
+        @auraEnabled public String accIndustry;
+        @auraEnabled public String conLastName;
+        @auraEnabled public String conEmail;
+    }
+}
+
+
+
+Application:
+-------------
+<aura:application extends="force:slds" controller="LayoutClass">
+    <aura:attribute name="Data" type="List"/>
+    <aura:attribute name="columns1" type="List"/>
+    <aura:attribute name="columns2" type="List"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}"/>
+     
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem size="4">
+            
+            <div style="width:500px;margin-left:50px;margin-top:100px;border:1px solid green;">
+                <lightning:card title="Accounts" iconName="standard:account">
+                    <lightning:datatable
+                                         keyField="id"
+                                         data="{! v.Data }"
+                                         columns="{! v.columns1 }"
+                                         hideCheckboxColumn="false"/>
+                </lightning:card>
+            </div>
+            
+            
+        </lightning:layoutItem>
+        <lightning:layoutItem size="4">
+            
+            <div style="width:500px;margin-left:100px;margin-top:100px;border:1px solid green;">
+                <lightning:card title="Contacts" iconName="standard:contact">
+                    <lightning:datatable
+                                         keyField="id"
+                                         data="{! v.Data }"
+                                         columns="{! v.columns2 }"
+                                         hideCheckboxColumn="false"/> 
+                </lightning:card> 
+            </div>
+            
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+</aura:application>
+
+
+Controller JS:
+---------------
+
+({
+	doinit : function(component, event, helper) {
+        //getData
+        var action = component.get("c.getData");
+        var cols1 = [
+            {label: 'Account name', fieldName: 'accName', type: 'text'},
+            {label: 'Account Phone', fieldName: 'accPhone', type: 'text'},
+            {label: 'Account Industry', fieldName: 'accIndustry', type: 'text'},
+            
+        ];
+        var cols2 = [ 
+            {label: 'Contact LastName', fieldName: 'conLastName', type: 'text'},
+            {label: 'Contact Email', fieldName: 'conEmail', type: 'text'}
+        ];
+        
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue();
+                component.set("v.Data",result);
+                component.set("v.columns1",cols1);
+                component.set("v.columns2",cols2);
+            }
+        });
+        $A.enqueueAction(action);
+    }
+})
+
+-------------------------------------------------------------

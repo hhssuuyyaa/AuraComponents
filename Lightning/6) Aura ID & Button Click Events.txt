@@ -1,0 +1,329 @@
+Agenda:
+===================
+aura:id="firstId"
+
+1. How to define the Ids to the lightning tags.
+2. How to set or get the values to an attribute using Ids.
+
+3. How to identify the events using Ids.
+
+Syntax to get the value using Id:
+
+component.find("yourId").get("v.value");
+
+Syntax to set the value using Id:
+
+component.find("yourId").set("v.value",value);
+
+
+Get and Set the values using aura:id
+
+Applicaton:
+
+<aura:application extends="force:slds">
+    
+    <lightning:input label="First Name" type="text" aura:id="fname"/> 
+    <lightning:input label="Last Name" type="text" aura:id="lname"/>
+    <lightning:input label="Phone" type="phone" aura:id="ph"/>
+    
+    <lightning:button label="Submit" onclick="{!c.invoke}"/>  
+</aura:application> 
+
+
+
+Client side controller:
+
+({
+	invoke : function(component, event, helper) {
+		var fname = component.find("fname").get("v.value");
+        console.log('First Name'+fname);
+        
+        var lname = component.find("lname").get("v.value");
+        console.log('Last Name'+lname);
+        
+        var phone = component.find("ph").get("v.value");
+        console.log('Phone'+phone); 
+	}
+})
+
+------------------------------------------------------------
+Addition & Multiplication using aura:id
+Implemented <lightning:card>
+Implemented <styles>
+
+Ex 2 : 
+
+<aura:application extends="force:slds">
+    <div class="box1">
+        <lightning:card iconName="utility:activity" >
+            <aura:set attribute="title">
+                <h1>Arithmetic Operations (+,*)</h1>
+            </aura:set>
+            <aura:set attribute="actions">
+                <lightning:button label="Add" onclick="{!c.add}"/>
+                <lightning:button label="Mul" onclick="{!c.mul}"/>
+            </aura:set>
+            <div class="innerDiv">
+                <lightning:input label="First Value" aura:id="fv"/>
+                <lightning:input label="Second Value" aura:id="sv" />
+                <lightning:input label="Result" aura:id="res"/>
+            </div>
+            <aura:set attribute ="footer">
+            	copy rights @salesforce.com
+            </aura:set>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+clientside controller code
+
+
+({
+	add : function(component, event, helper) {
+		var a = component.find("fv").get("v.value");
+        console.log(a);
+        var b = component.find("sv").get("v.value");
+        console.log(b);
+        var res = parseInt(a) + parseInt(b);
+        console.log(res);
+        component.find("res").set("v.value",res);
+	},
+    mul : function(component, event, helper){
+        var a = component.find("fv").get("v.value");
+        console.log(a);
+        var b = component.find("sv").get("v.value");
+        console.log(b);
+        var res = parseInt(a) * parseInt(b); 
+        console.log(res);
+        component.find("res").set("v.value",res);
+    }
+})
+
+
+
+Styles
+
+
+.THIS.box1 {
+    margin:100px;
+    height:350px;
+    width:500px;
+    border:2px solid black;
+    border-radius:20px;
+    padding:10px;
+}
+.THIS .innerDiv{
+    padding:5px;
+}
+
+
+
+-------------------------------------------------
+Identify the button clicks using events:
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <lightning:button label="Button 1" onclick="{!c.invoke}" aura:id="btn1" name="btn1Name"/>
+    <lightning:button label="Button 2" onclick="{!c.invoke}" aura:id="btn2" name="btn2Name"/>
+    <lightning:button label="Button 3" onclick="{!c.invoke}" aura:id="btn3" name="btn3Name"/>
+</aura:application> 
+
+
+Client-side controller:
+
+
+({
+	invoke : function(component, event, helper) {
+		var btnParam = event.getSource(); // Event Source Information (name,Id)
+        
+        // to get the name of the event
+        var btnName = btnParam.get("v.name");
+        console.log('Button Name '+btnName);
+        
+        // to get the Id of the event
+        var btnId = btnParam.getLocalId();
+        console.log('Button Id '+btnId);
+        
+        
+        // Add
+        if(btnName == 'btn1Name'){
+            // Add logic
+        }
+         
+        
+        // Mul
+        if(btnName == 'btn2Name'){
+            // Mul logic
+        }
+        
+        
+	}
+})
+
+
+---------------------------------------------------------------
+1) How to define Ids
+2) How to get and set the values in clientside controller.
+3) how to identify the event names and Ids
+4) How to use <lightning:card>
+5) How to use css
+
+
+Ex 2 : 
+
+Application:
+
+<aura:application extends="force:slds">
+    <div class="box1">
+        <lightning:card iconName="utility:activity" >
+            <aura:set attribute="title">
+                <h1>Arithmetic Operations (+,*)</h1>
+            </aura:set>
+            <aura:set attribute="actions"> 
+                <lightning:button label="Add" onclick="{!c.invoke}" aura:id="btnAdd" name="btnAddName"/>
+                <lightning:button label="Mul" onclick="{!c.invoke}" aura:id="btnMul" name="btnMulName"/>
+            </aura:set>
+            <div class="innerDiv">
+                <lightning:input label="First Value" aura:id="fv"/>
+                <lightning:input label="Second Value" aura:id="sv" />
+                <lightning:input label="Result" aura:id="res"/>
+            </div>
+            <aura:set attribute ="footer">
+            	copy rights @salesforce.com
+            </aura:set>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+
+client-side controller code:
+
+({
+	invoke : function(component, event, helper) {
+        // To get the input of First Value using Id "fV"
+		var a = component.find("fv").get("v.value");
+        console.log(a);
+        var b = component.find("sv").get("v.value");
+        console.log(b);
+        
+        var btnId = event.getSource().getLocalId(); // button Id
+        var btnName = event.getSource().get("v.name");  // button Name
+        
+        console.log('btnId '+btnId);
+        console.log('btnName '+btnName);
+        var res = 0;
+        if(btnId == 'btnAdd'){
+            res = parseInt(a) + parseInt(b);
+            component.find("res").set("v.value",res);
+        }
+        if(btnId == 'btnMul'){
+            res = parseInt(a) * parseInt(b); 
+            component.find("res").set("v.value",res);
+        }
+        console.log(res);
+	}
+})
+
+
+Styles:
+
+
+.THIS.box1 {
+    margin:100px;
+    height:350px;
+    width:500px;
+    border:2px solid black;
+    border-radius:20px;
+    padding:10px;
+}
+.THIS .innerDiv{
+    padding:5px;
+}
+
+---------------------------------------------------------------
+
+Ex 3 :
+
+1) How to define Ids
+2) How to get and set the values in clientside controller.
+3) how to identify the event names and Ids
+4) How to use <lightning:card>
+5) How to use css
+6) How to defind the Aura:attribute
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="result" type="integer" />
+    <div class="box1">
+        <lightning:card iconName="utility:activity" >
+            <aura:set attribute="title">
+                <h1>Arithmetic Operations (+,*)</h1>
+            </aura:set>
+            <aura:set attribute="actions"> 
+                <lightning:button label="Add" onclick="{!c.invoke}" aura:id="btnAdd" name="btnAddName"/>
+                <lightning:button label="Mul" onclick="{!c.invoke}" aura:id="btnMul" name="btnMulName"/>
+            </aura:set>
+            <div class="innerDiv">
+                <lightning:input label="First Value" aura:id="fv"/>
+                <lightning:input label="Second Value" aura:id="sv" /> <br/>
+                Result is : {!v.result}
+            </div>
+            <aura:set attribute ="footer">
+            	copy rights @salesforce.com
+            </aura:set>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+Client-side Controller:
+
+
+({
+	invoke : function(component, event, helper) {
+        // To get the input of First Value using Id "fV"
+		var a = component.find("fv").get("v.value");
+        console.log(a);
+        var b = component.find("sv").get("v.value");
+        console.log(b);
+        
+        var btnId = event.getSource().getLocalId(); // button Id
+        var btnName = event.getSource().get("v.name");  // button Name
+        
+        console.log('btnId '+btnId);
+        console.log('btnName '+btnName);
+        var res = 0;
+        if(btnId == 'btnAdd'){
+            res = parseInt(a) + parseInt(b);
+            component.set("v.result",res);
+        }
+        if(btnId == 'btnMul'){
+            res = parseInt(a) * parseInt(b); 
+            component.set("v.result",res);
+        }
+        console.log(res);
+	}
+})
+
+
+styles:
+
+.THIS.box1 {
+    margin:100px;
+    height:350px;
+    width:500px;
+    border:2px solid black;
+    border-radius:20px;
+    padding:10px;
+}
+.THIS .innerDiv{
+    padding:5px;
+}
+
+------------------------------------------------

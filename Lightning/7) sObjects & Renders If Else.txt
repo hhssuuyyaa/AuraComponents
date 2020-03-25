@@ -1,0 +1,362 @@
+Agenda:
+--------------
+1. Passing Sobjects as an attribute.
+
+2. Rendered in lightning
+------------------------------------------
+Passing Sobject as an attribute:
+------------------------------------------
+<aura:attribute name="firstName" type="string" default="Nara" />
+<aura:attribute name="Phone" type="integer" default="9705898616" />
+
+<aura:attribute name="acc" type="Account" />
+is equivalent to :
+Account acc;
+
+<aura:attribute name="acc" type="Sobject" default="{'sobjectType':'Account'}" />
+is equivalent to : 
+Account acc = new Account();
+
+Ex 1:
+--------------
+Application:
+--------------
+<aura:application extends="force:slds">
+    <aura:attribute name="acc" type="Sobject" default="{'sobjectType':'Account'}"/>
+    
+    <lightning:input label="Account Name" value="{!v.acc.Name}"/>
+    <lightning:input label="Account Phone" value="{!v.acc.Phone}"/> 
+    <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+    
+    <lightning:button label="Submit" onclick="{!c.invoke}"/>
+</aura:application>
+
+
+Client-side Controller:
+----------------------------
+({
+	invoke : function(component, event, helper) {
+		var name = component.get("v.acc.Name");
+        console.log(name);
+        var ph = component.get("v.acc.Phone");
+        console.log(ph);
+        var industry = component.get("v.acc.Industry");
+        console.log(industry);
+	}
+})
+
+
+
+How to read full object data :
+----------------------------
+
+Application:
+--------------
+<aura:application extends="force:slds">
+    <aura:attribute name="acc" type="Sobject" default="{'sobjectType':'Account'}"/>
+    
+    <lightning:input label="Account Name" value="{!v.acc.Name}"/>
+    <lightning:input label="Account Phone" value="{!v.acc.Phone}"/> 
+    <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+    
+    <lightning:button label="Submit" onclick="{!c.invoke}"/>
+</aura:application>
+
+
+
+client-side controller:
+------------------------
+
+({
+	invoke : function(component, event, helper) {
+        
+        var accdata = component.get("v.acc");
+        console.log(accdata.Name);
+        console.log(accdata.Phone);
+        console.log(accdata.Industry);
+		
+	}
+})
+
+
+
+-------------------------------------------------------------------------
+
+List:
+----------
+<aura:attribute name="countries" type="List" default="['INDIA','AUSTRALIA']"/>
+
+
+<aura:application extends="force:slds">
+	<aura:attribute name="countries" type="List" default="['INDIA','AUSTRALIA']"/>
+    
+    <aura:iteration items="{!v.countries}" var="c">
+        {!c} <br/>
+    </aura:iteration>
+</aura:application>
+
+-------------------------------------------------------------------------
+How to render the component:
+-------------------------------
+in VF:
+
+rendered="true" / rendered="false"
+
+in Lightning:
+------------------
+Syntax:
+----------
+<aura:if isTrue="flag">
+	// list of components.
+</aura:if>
+
+Syntax:
+---------
+<aura:if isTrue="flag">
+		// All true statements
+	<aura:set attribute="else">
+		// All false statements
+	</aura:set>
+</aura:if>
+
+
+Application:
+-------------
+<aura:application extends="force:slds">
+    <aura:attribute name="flag1" type="boolean" default="false"/>
+    <aura:attribute name="flag2" type="boolean" default="false"/>
+    
+    <div class="btnstyles">
+    	<lightning:button label="Show Customer Details" onclick="{!c.ShowCustomerDetails}"/>
+    	<lightning:button label="Show Job Details" onclick="{!c.showJobDetails}"/>
+        <lightning:button label="Refresh" onclick="{!c.refresh}"/>
+    </div>
+    
+    <br/><br/>
+    <!-- Customer Information -->
+    <aura:if isTrue="{!v.flag1}">
+        <div class="details">
+            <h1><b><u>Customer Information</u></b></h1> <br/>
+                First Name		:	Nara <br/>
+                Last  Name		:	Vutla <br/>
+                Phone			:	+919705898616 <br/>
+                Email			:	nara.dotnet@gmail.com <br/> 
+        </div>
+    </aura:if>
+    <!-- Job Information -->
+    <aura:if isTrue="{!v.flag2}">
+        <div class="details"> 
+            <h1><b><u>Job Information</u></b></h1> <br/>
+                Company Name	:	TCS <br/>
+                City	Name	:	Hyderabad <br/>
+                Street			:	Hitech City<br/>
+                Country			:	India<br/>
+        </div>
+    </aura:if>
+</aura:application>
+
+
+Client-side Controller:
+------------------------
+({
+	ShowCustomerDetails : function(component, event, helper) {
+		component.set("v.flag1",true);
+	},
+    showJobDetails : function(component, event, helper){
+        component.set("v.flag2",true);
+    },
+    refresh : function(component, event, helper){
+        component.set("v.flag1",false);
+        component.set("v.flag2",false);
+    }
+})
+
+
+Styles:
+--------
+.THIS.details {
+    height:170px;
+    width:250px;
+    border:1px solid black;
+    border-radius:5px;
+    margin-left:100px;
+    margin-top:20px;
+    padding:10px;
+}
+.THIS.btnstyles{
+    margin-left:70px;
+    margin-top:50px;
+}
+
+
+---------------------------------------------------------------
+
+Ex 2:
+---------
+application:
+---------------
+<aura:application extends="force:slds">
+    <aura:attribute name="res" type="Integer" />
+    <aura:attribute name="flag1" type="boolean" default="false"/>
+    <div class="details">
+        <lightning:card  iconName="standard:account" >
+            <aura:set attribute="title">
+                <h1>Arithmetic Operations</h1>
+            </aura:set> 
+            <aura:set attribute="actions">
+                <lightning:button label="Add" onclick="{!c.invoke}" aura:id="addbtn"/>
+                <lightning:button label="Mul" onclick="{!c.invoke}" aura:id="mulbtn"/>
+                <lightning:button label="Refresh" onclick="{!c.invoke}" aura:id="refreshbtn"/>
+            </aura:set>
+            <div class="input1">
+                <lightning:input label="First Value" aura:id="fv" />
+                <lightning:input label="Second Value" aura:id="sv"/>
+             </div>
+            <aura:if isTrue="{!v.flag1}">
+            	 Result : {!v.res}
+            </aura:if>
+        </lightning:card>
+   </div>
+</aura:application>
+
+
+client-side Controller:
+--------------------------
+({
+	invoke : function(component, event, helper) {
+		var btnId = event.getSource().getLocalId();
+        var a = component.find("fv").get("v.value");
+        var b = component.find("sv").get("v.value");
+        var res = 0;
+        if(btnId =='addbtn'){
+            res = parseInt(a) + parseInt(b);
+            component.set("v.res",res);
+        }
+        if(btnId === 'mulbtn'){
+			res = parseInt(a) * parseInt(b);
+            component.set("v.res",res);            
+        }
+        
+        if(btnId == 'refreshbtn'){
+            component.find("fv").set("v.value",null);
+            component.find("sv").set("v.value",null);
+            component.set("v.flag1",false);
+        }
+        
+        if(res>0){
+            component.set("v.flag1",true);
+        }
+	}
+})
+
+
+styles:
+--------
+
+.THIS.details {
+    height:300px;
+    width:550px;
+    border:1px solid black;
+    border-radius:5px;
+    margin-left:100px;
+    margin-top:20px;
+    padding:10px;
+}
+.THIS .input1{
+    padding:10px;
+}
+
+
+---------------------------------------------
+
+if - else
+
+apex code:
+
+if(a == 10){
+	run this logic
+}
+else{
+	// run this logic
+}
+
+
+Syntax:
+----------
+<aura:if isTrue="flag">
+	True block (input)
+	<aura:set attribute="else">
+		False block (output)
+	</aura:set>
+</aura:if>
+
+
+
+Application:
+----------------
+<aura:application extends="force:slds">
+    <aura:attribute name="res" type="Integer" />
+    <aura:attribute name="flag1" type="boolean" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+    
+    <aura:if isTrue="{!v.flag1}">
+        <div class="details">
+            <lightning:card  iconName="standard:account" >
+                <aura:set attribute="title">
+                    <h1>Arithmetic Operations</h1>
+                </aura:set> 
+                <aura:set attribute="actions">
+                    <lightning:button label="Add" onclick="{!c.invoke}" aura:id="addbtn"/>
+                </aura:set>
+                <div class="input1">
+                    <lightning:input label="First Value" aura:id="fv" />
+                    <lightning:input label="Second Value" aura:id="sv"/>
+                 </div>
+            </lightning:card>
+       </div>
+        <aura:set attribute="else"> 
+            Result : {!v.res}
+        </aura:set>
+    </aura:if>
+</aura:application>
+
+
+
+Client-side Controller:
+-------------------------
+
+({
+    doInit : function(component, event, helper){
+      component.set("v.flag1",true);  
+    },
+    invoke : function(component, event, helper) {
+		var btnId = event.getSource().getLocalId();
+        var a = component.find("fv").get("v.value");
+        var b = component.find("sv").get("v.value");
+        var res = 0;
+        if(btnId =='addbtn'){
+            res = parseInt(a) + parseInt(b);
+            component.set("v.res",res);
+            component.set("v.flag1",false);
+        }
+	}
+})
+
+
+Styles:
+------------
+.THIS.details {
+    height:300px;
+    width:550px;
+    border:1px solid black;
+    border-radius:5px;
+    margin-left:100px;
+    margin-top:20px;
+    padding:10px;
+}
+.THIS .input1{
+    padding:10px;
+}
+
+
+--------------------------------------------------------------

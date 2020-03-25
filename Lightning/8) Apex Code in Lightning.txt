@@ -1,0 +1,186 @@
+Agenda:
+
+1. Working with Server Side Controller.
+
+2. How to return the value from the server side controller
+
+3. How to pass the value to the server side controller.
+
+--------------------------------------------------------------
+
+VF Page:
+
+<apex:page controller="YourClassName">
+	<apex:commandbutton value="Submit" action="{!doSubmit}"/>
+</apex:page>
+
+Apex class:
+
+public class YourClassName{
+
+	public void doSubmit(){
+		// logic....
+	}
+}
+
+
+
+
+Lightning:
+--------------
+public class YourClassName{
+	@auraEnabled
+	public static void doSubmit(){
+		// logic....
+	}
+}
+
+
+************************
+Ex1:
+************************
+Apex class:
+------------------------
+
+public class Apexclass1 {
+	@auraenabled
+    public static void DisplayName(){
+        System.debug('My Name is : Venkata NarasimhaRao Vutla');
+    } 
+}
+
+
+
+Lightning Application:
+------------------------
+
+<aura:application extends="force:slds" controller="Apexclass1">
+    <lightning:button label="Invoke" onclick="{!c.doInvoke}"/>   
+</aura:application>
+
+
+
+Client-side Controller:
+------------------------
+({
+	doInvoke : function(component, event, helper) { 
+		// From here we need to invoke server side methods.
+		
+        // It invokes the server-side controller method.
+        var method = component.get("c.DisplayName");
+        
+        // This will add the action to the queue.
+        $A.enqueueAction(method); 
+	}
+})
+************************************************************************
+How to use setCallback to capture the results in client-side controller 
+************************************************************************
+Application:
+-------------
+<aura:application extends="force:slds" controller="Apexclass1">
+    <aura:attribute name="myName" type="string" />
+    <lightning:button label="Invoke" onclick="{!c.doInvoke}"/>   <br/>
+    <br/>
+    <p style="font-size:40px;color:blue;">{!v.myName}</p> 
+</aura:application>
+
+
+Client-side Controller Code:
+---------------------------------------
+
+
+({
+	doInvoke : function(component, event, helper) { 
+        var action = component.get("c.DisplayName");
+        action.setCallback(this,function(response){
+            var state = response.getState(); 
+            console.log(state);
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue(); 
+                console.log(result); 
+                component.set("v.myName",result);
+            }
+        });
+        $A.enqueueAction(action);  
+	}
+})
+
+Apex Class:
+-------------
+public class Apexclass1 {
+	@auraenabled
+    public static string DisplayName(){ 
+        return 'Venkata narasimhaRao Vutla';
+    } 
+}
+
+************************************************************************
+How to pass the inputs from client-side controller to server-side controller
+************************************************************************
+Application:
+---------------
+<aura:application extends="force:slds" controller="CustomerDetails">
+    <!-- Attributes to store the results -->
+    <aura:attribute name="strKey" type="string"/>  
+    <aura:attribute name="accRecord" type="Account" default="{'sObjectType':'Account'}"/>
+    <aura:attribute name="flag" type="boolean" default="false"/>
+    
+    <!-- Section for entering Industry for Search -->
+    <div style="margin-left:100px;margin-top:100px;width:400px;">
+        <lightning:input label="Industry" value="{!v.strKey}"/> <br/>
+        <lightning:button label="Search" onclick="{!c.doSearch}"/>    
+    </div>
+     
+    <!-- Customer Details Section -->
+    <div style="height:300px;width:300px;margin-left:100px;margin-top:50px;">
+    	<aura:if isTrue="{!v.flag}"> 
+            <lightning:card title="Customer Details" iconName="standard:account">
+                <div style="padding:5px;">
+                    <b>Name</b>			:	{!v.accRecord.Name} <br/>
+                    <b>Phone</b>		:	{!v.accRecord.Phone} <br/>
+                    <b>Industry</b>		:	{!v.accRecord.Industry} <br/>
+                </div> 
+            </lightning:card>
+        </aura:if>
+    </div>
+    
+</aura:application>
+
+
+Client-side Controller:
+------------------------------
+({
+	doSearch : function(component, event, helper) {
+		// Calling Server-side action getAccount()
+		var action = component.get("c.getAccount");
+        // Passing the strIndustry value to the server-side controller method getAccount()
+        action.setParams({"strIndustry":component.get("v.strKey")});
+        // setCallback
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            console.log(state);
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue();
+                console.log(result);
+                component.set("v.accRecord",result);
+                component.set("v.flag",true); 
+            }
+            
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+
+Apex Class:
+---------------
+public class CustomerDetails {
+	@AuraEnabled
+    public static Account getAccount(string strIndustry){ 
+        return [SELECT ID,Name,Phone,Industry FROM ACCOUNT WHERE Industry =: strIndustry limit 1];    // 3 records
+    }
+}
+
+************************************************************************

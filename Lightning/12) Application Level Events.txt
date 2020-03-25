@@ -1,0 +1,636 @@
+Application Events:
+-------------------------------------------------------------------------------
+1. How to create an  Event.
+2. How to register an Event.
+3. How to get an Event.
+4. How to pass the parameters to an Event.
+5. How to fire an Event.
+6. How to handle an Event.
+7. How to read the data from an event.
+
+
+-------------------------------------------------------------------------------
+Component Event:
+
+To Get an Event:
+
+Syntax:
+var evt = component.getEvent("first");
+-------------------------------------------------------------------------------
+Application Events:
+
+To Get an Event:
+
+Syntax:
+
+var evt = $A.get("e.c:AEvent1");
+
+-------------------------------------------------------------------------------
+Ex1 :
+
+Application Event: AEvent1
+
+
+<aura:event type="APPLICATION" description="Event template" />
+
+
+Component 1 : AEvent1C1
+
+<aura:component >
+    <aura:registerEvent name="first" type="c:AEvent1"/>
+    <lightning:button label="Button 1" onclick="{!c.btn1Action}"/>
+</aura:component>
+
+
+
+Controller JS:
+
+
+({
+	btn1Action : function(component, event, helper) {
+        // Syntax to get an application event
+        var evt = $A.get("e.c:AEvent1");
+        // To fire an event.
+        evt.fire();
+	}
+})
+
+
+
+Component 2: AEvent1C2
+
+
+<aura:component >
+    <aura:handler name="" event="c:AEvent1" action="{!c.btn2Action}"/>
+    <aura:attribute name="flag" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}">
+    	<lightning:button label="Button2" />
+    </aura:if>
+</aura:component>
+
+
+
+Controller JS:
+
+
+({
+	btn2Action : function(component, event, helper) {
+		component.set("v.flag",true);
+	}
+})
+
+
+Application: AEvent1App
+
+<aura:application extends="force:slds">
+    <c:AEvent1C1/>
+    <c:AEvent1C2/>
+</aura:application>
+
+
+----------------------------------------------------------------------------------
+Ex2 :
+
+
+Event : AEvent2
+
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="acc" type="Account" /> 
+</aura:event>
+
+
+
+Component 1 : AEvent2C1
+
+<aura:component controller="AccountDML"> 
+    <aura:registerEvent name="first" type="c:AEvent2"/> 
+    <aura:attribute name="accountrec" type="Account" default="{'sobjectType':'Account'}"/>
+    
+    <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid green;">
+    	<lightning:card title="" iconName="standard:account">
+        	<aura:set attribute="title">
+            	<h1>New Customer</h1>
+            </aura:set>
+            <aura:set attribute="actions">
+                <lightning:button label="Save" onclick="{!c.doSave}"/>
+                <lightning:button label="Cancel" onclick="{!c.doCancel}"/>
+            </aura:set>
+            <div style="padding:20px;">
+                <lightning:input label="Name" value="{!v.accountrec.Name}"/>
+                <lightning:input label="Phone" value="{!v.accountrec.Phone}"/>
+                <lightning:input label="Industry" value="{!v.accountrec.Industry}"/> 
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
+
+
+Controller JS:
+
+
+({
+	doSave : function(component, event, helper) {
+		var accountRecord = component.get("v.accountrec");
+        var action = component.get("c.createAccount");
+        action.setParams({"objA":accountRecord});
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != 'error'){
+                    // to get an application event
+                    var evt = $A.get("e.c:AEvent2");
+                    // to pass the data using an application event
+                    evt.setParams({"acc":accountRecord});
+                    // fire an application event.
+                    evt.fire();
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	},
+    doCancel : function(component, event, helper){
+        component.set("v.acc",null);
+    }
+})
+
+
+
+Component 2 : AEvent2C2
+
+
+<aura:component controller="AccountDML"> 
+    <aura:attribute name="flag" type="boolean" default="false" />
+    <aura:attribute name="accountData" type="Account" default="{'sobjectType':'Account'}"/>
+    <aura:handler  name="" event="c:AEvent2" action="{!c.showData}"/>
+    
+    <aura:if isTrue="{!v.flag}"> 
+    	<div style="margin-left:100px;margin-top:20px;width:500px;border:1px solid black;">
+            <lightning:card title="Customer Details" iconName="standard:account">
+                <div style="padding:20px;">
+                    <b>Name</b>		:	{!v.accountData.Name} <br/>  
+                    <b>Phone</b>	:	{!v.accountData.Phone} <br/>
+                    <b>Industry</b>	:	{!v.accountData.Industry}
+                </div>
+            </lightning:card>
+        </div>
+    </aura:if>
+    
+
+</aura:component>
+
+
+
+Controller JS:
+
+
+({
+	showData : function(component, event, helper) {
+        console.log('Method started....');
+		var acc1 = event.getParam("acc"); 
+        console.log(JSON.stringify(acc1)); 
+        component.set("v.accountData",acc1);  
+        component.set("v.flag",true); 
+	}
+})
+
+
+Application: AEvent2APP
+
+<aura:application extends="force:slds">
+    <c:AEvent2C1 />
+    <c:AEvent2C2 />
+</aura:application>
+
+
+Apex Class:
+
+
+public class AccountDML {
+	@auraEnabled
+    public static String createAccount(Account objA){
+        try{
+            Insert objA;
+            	return objA.Id; 
+        }catch(Exception e){
+            return 'error';
+        }
+    }
+}
+
+-----------------------------------------------------------------------
+===========================================================================================
+Part 2
+===========================================================================================
+Apex Class:
+
+
+public class AccounteventsController {
+	@auraEnabled
+    public static String insertAccount(Account objA){
+        try{
+            insert objA;
+            	return 'OK';
+        }catch(Exception e){
+            return 'Some error';
+        }
+    }
+    
+    @auraEnabled
+    public static List<Account> QueryAccounts(){
+        return [SELECT Id,Name,Phone,Industry FROM Account order by createddate desc limit 20];
+    }
+}
+
+
+
+Event:
+
+<aura:event type="APPLICATION" description="Event template" /> 
+
+
+
+Component 1 :
+
+
+<aura:component controller="AccounteventsController">
+    <aura:registerEvent name="first" type="c:AccountEvents1"/>
+    <aura:attribute name="acc" type="Account" default="{'sobjectType':'Account'}"/>
+    
+    <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid black;">
+    	<lightning:card title="New Customer" iconName="standard:account">
+        	<aura:set attribute="actions">
+                <lightning:button label="Save" onclick="{!c.doSave}"/>
+                <lightning:button label="Cancel" onclick="{!c.doCancel}"/>
+            </aura:set>
+            <div style="padding:20px;">
+                <lightning:input label="Name" value="{!v.acc.Name}"/>
+                <lightning:input label="Phone" value="{!v.acc.Phone}"/>
+                <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
+
+
+Controller jS:
+
+
+({
+	doSave : function(component, event, helper) {
+		var accRecord = component.get("v.acc");
+        var action = component.get("c.insertAccount");
+        action.setParams({"objA":accRecord});
+        action.setCallback(this,function(response){
+            var state = response.getState(); 
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res == 'OK'){
+                    var evt = $A.get("e.c:AccountEvents1");
+                    evt.fire();
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	},
+    doCancel : function(component, event, helper) {
+		component.set("v.acc",null);
+	}
+})
+
+
+
+
+Component 2 :
+
+
+<aura:component controller="AccounteventsController">
+    <aura:attribute name="myColumns" type="List" />
+    <aura:attribute name="lstAccounts" type="List" />
+    <aura:attribute name="flag" type="boolean" default="false" />
+    
+    <aura:handler name="" event="c:AccountEvents1" action="{!c.getData}"/> 
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<lightning:dataTable 
+				keyField="Id"
+				data ="{!v.lstAccounts}"
+				columns="{!v.myColumns}" />
+
+        </div>
+   </aura:if>
+   
+</aura:component>
+
+
+Controller JS:
+
+
+({
+	getData : function(component, event, helper) {
+        // adding columns to the data Table
+		var cols = [
+            {label:'Account Name',fieldName:'Name',type:'text'},
+            {label:'Account Phone',fieldName:'Phone',type:'text'},
+            {label:'Account Industry',fieldName:'Industry',type:'text'}
+        ];
+        component.set("v.myColumns",cols);
+        
+        // adding records to the data Table
+        
+        var action = component.get("c.QueryAccounts");
+        action.setCallback(this,function(response){
+           	 var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != ''){
+                    component.set("v.lstAccounts",res);
+                    component.set("v.flag",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+Appplication:
+
+
+<aura:application extends="force:slds">
+    <c:AccountEvents1C1 />
+    <c:AccountEvents1C2 />
+</aura:application>
+
+
+------------------------------------------------------------------
+
+To pass the data from one component to another component using Application events.
+
+
+Apex class:
+
+public class AccounteventsController {
+	@auraEnabled
+    public static String insertAccount(Account objA){
+        try{
+            insert objA;
+            	return 'OK';
+        }catch(Exception e){
+            return 'Some error';
+        }
+    }
+    
+   
+}
+
+
+Event:
+
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="accRecord" type="Account"/>
+</aura:event>
+
+
+Component 1:
+
+<aura:component controller="AccounteventsController">
+    <aura:registerEvent name="first" type="c:AccountEvents1"/>
+    <aura:attribute name="acc" type="Account" default="{'sobjectType':'Account'}"/>
+    
+    <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid black;">
+    	<lightning:card title="New Customer" iconName="standard:account">
+        	<aura:set attribute="actions">
+                <lightning:button label="Save" onclick="{!c.doSave}"/>
+                <lightning:button label="Cancel" onclick="{!c.doCancel}"/>
+            </aura:set>
+            <div style="padding:20px;">
+                <lightning:input label="Name" value="{!v.acc.Name}"/>
+                <lightning:input label="Phone" value="{!v.acc.Phone}"/>
+                <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
+
+
+Controller jS:
+
+
+({
+	doSave : function(component, event, helper) {
+		var accRecord1 = component.get("v.acc");
+        var action = component.get("c.insertAccount");
+        action.setParams({"objA":accRecord1}); 
+        action.setCallback(this,function(response){
+            var state = response.getState(); 
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue(); 
+                if(res == 'OK'){
+                    var evt = $A.get("e.c:AccountEvents1");
+                    evt.setParams({"accRecord":accRecord1}); 
+                    evt.fire();
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	},
+    doCancel : function(component, event, helper) {
+		component.set("v.acc",null);
+	}
+})
+
+
+Component 2 :
+
+
+<aura:component controller="AccounteventsController">
+    <aura:attribute name="accountAcc" type="Account"/>
+    <aura:attribute name="flag" type="boolean" default="false" />
+    
+    <aura:handler name="" event="c:AccountEvents1" action="{!c.getData}"/>  
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+            <lightning:card title="Customer" iconName="standard:account">
+                <div style="padding:20px;"> 
+                    <table>
+                    	<tr>
+                        	<td style="width:200px;">
+                                <b>Name</b>
+                            </td>
+                            <td style="width:150px;">
+                                	{!v.accountAcc.Name}
+                            </td>
+                        </tr>
+                        <tr>
+                        	<td>
+                                	<b>Phone</b>
+                            </td>
+                            <td>
+		                              {!v.accountAcc.Phone}  		
+                            </td>
+                        </tr>
+                        <tr>
+                        	<td>
+                                	<b>Industry</b>
+                            </td>
+                            <td>
+                                	{!v.accountAcc.Industry}
+                            </td>
+                        </tr>
+                    </table>
+                   
+                </div>
+            </lightning:card>
+        </div>
+   </aura:if>
+   
+</aura:component> 
+
+
+Controller JS:
+
+
+({
+	getData : function(component, event, helper) {
+        var accrec = event.getParam("accRecord");
+        component.set("v.accountAcc",accrec);
+        component.set("v.flag",true);
+	}
+})
+
+Application:
+
+
+
+<aura:application extends="force:slds">
+    <c:AccountEvents1C1 />
+    <c:AccountEvents1C2 />
+</aura:application>
+
+
+------------------------------------------------------
+
+c:AccountEvents2 - Name of the event
+
+industryKey - attribute in the event.
+
+AccountEvents2C1 - Component 1
+
+AccountEvents2C2 - Component 2
+
+AccountEvents2APP - Application
+
+Apex class - AccountEventSearchController
+
+
+Event:
+
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="industryKey" type="string" />
+</aura:event> 
+
+
+Component 1:
+
+<aura:component controller="AccountEventSearchController">
+    <aura:registerEvent name="first" type="c:AccountEvents2"/>
+    <aura:attribute name="skey" type="string"/>
+     
+    <div style="margin-left:100px;margin-top:100px;width:500px;">
+    	<table>
+        	<tr>
+                <td><lightning:input label="Industry" value="{!v.skey}"/></td>
+                <td><br/><lightning:button label="Search" onclick="{!c.searchData}"/></td>
+            </tr>
+        </table> 
+    </div>
+</aura:component>
+
+
+Controller JS:
+
+({ 
+	searchData : function(component, event, helper) {
+		var searchkey = component.get("v.skey");
+        var evt = $A.get("e.c:AccountEvents2");
+        evt.setParams({"industryKey":searchkey}); 
+        evt.fire();
+	}
+})
+
+
+Component 2:
+
+<aura:component controller="AccountEventSearchController">
+	<aura:attribute name="myColumns" type="List" />
+    <aura:attribute name="lstAccounts" type="List" />
+    <aura:attribute name="flag" type="boolean" default="false" />
+     
+    
+    <aura:handler name="" event="c:AccountEvents2" action="{!c.getData}"/> 
+    
+    <aura:if isTrue="{!v.flag}"> 
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<lightning:dataTable 
+				keyField="Id"
+				data ="{!v.lstAccounts}"
+				columns="{!v.myColumns}" />
+
+        </div>
+   </aura:if>
+    
+    
+</aura:component>
+
+
+Controller JS:
+
+({
+	getData : function(component, event, helper) {
+		// adding columns to the data Table
+		var cols = [ 
+            {label:'Account Name',fieldName:'Name',type:'text'},
+            {label:'Account Phone',fieldName:'Phone',type:'text'},
+            {label:'Account Industry',fieldName:'Industry',type:'text'}
+        ];
+        component.set("v.myColumns",cols);
+        
+        
+        // adding records to the data Table
+        var searchparam = event.getParam("industryKey");
+        var action = component.get("c.searchAccounts");
+        action.setParams({"searchKey":searchparam});
+        action.setCallback(this,function(response){
+           var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != ''){
+                    component.set("v.lstAccounts",res);
+                    component.set("v.flag",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <c:AccountEvents2C1 />
+    <c:AccountEvents2C2 />
+</aura:application>
+
+
+Apex Class:
+
+public class AccountEventSearchController {
+	@auraEnabled
+    public static List<Account> searchAccounts(string searchKey){ 
+        return [SELECT Id,Name,Phone,Industry FROM Account WHERE Industry =: searchKey]; 
+    }
+}

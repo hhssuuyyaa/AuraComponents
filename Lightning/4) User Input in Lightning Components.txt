@@ -1,0 +1,211 @@
+<aura:attribute name="firstvalue" type="integer" default="10"/>
+
+Integer firstvalue = 10;
+
+Agenda:
+----------
+<lightning:input/> : To enter the input in the lightning.
+
+Ex1:
+-----
+
+<aura:application extends="force:slds">
+    <div style="padding:50px;margin-left:50px;width:600px;border:1px solid black;">
+        <center><p style="font-size:20px;">Employee Registration Form</p></center>
+        <lightning:input label="FirstName"/> <!-- Text -->
+        <lightning:input label="LastName" required="true" type="text"/>
+        <lightning:input label="Email Address" type="email" />
+        <lightning:input label="Phone Number" type="phone"/>
+        <lightning:input label="Age" type="number" value="30"/>
+        <lightning:input label="Married?" type="checkbox" />
+        <lightning:input label="Date of Birth" type="datetime"/>
+        <lightning:input label="Date of Joining" type="date" />
+        <lightning:input label="Most like color" type="color"/>
+        <lightning:input label="Password" type="password"/>
+        <lightning:input label="Time" type="time"/>
+    </div>
+</aura:application>
+--------------------------------------------------
+Ex 2:
+------
+value="" : To store the value in an attribute.
+
+Application:
+-------------
+<aura:application extends="force:slds">
+    <aura:attribute name="fname" type="string" />
+    <aura:attribute name="lname" type="string" />
+    <aura:attribute name="email" type="string" />
+    <aura:attribute name="phone" type="string" />
+    <aura:attribute name="age" type="integer" />
+    
+	<div style="width:600px;margin:100px;padding:40px;border:2px solid black;">
+        <lightning:input label="First Name" type="text" value="{!v.fname}"/>
+        <lightning:input label="Last Name" type="text" value="{!v.lname}"/>
+        <lightning:input label="Email" value="{!v.email}"/>
+        <lightning:input label="Phone" value="{!v.phone}"/>
+        <lightning:input label="Age" value="{!v.age}"/> <br/>
+        <center>
+            <lightning:button label="Show Data" onclick="{!c.showdata}"/>
+            <lightning:button label="Clear Data" onclick="{!c.cleardata}"/>
+        </center>
+    </div>
+</aura:application>
+
+
+Client-side controller :
+-------------------------
+({
+	showdata : function(component, event, helper) {
+        // get() : To get the value from the attribute
+        // set() : to set the value to the attribute.
+        var firstName = component.get("v.fname");
+        console.log(firstName);
+        var lastName = component.get("v.lname");
+        console.log(lastName);
+        var email = component.get("v.email");
+        console.log(email);
+        var phone = component.get("v.phone");
+        console.log(phone);
+        var age = component.get("v.age");
+        console.log(age);
+	}, 
+    cleardata : function(component, event, helper){
+        component.set("v.fname",null);
+        component.set("v.lname",null);
+        component.set("v.email",null);
+        component.set("v.phone",null);
+        component.set("v.age",null);
+    }
+})
+---------------------------------------------------------
+Ex 3:
+-----
+Salary = 10000
+Tax = 10%
+netsalary = (salary)-(salary*tax/100)
+		  = 10000 - (10000*10/100)
+		  = 10000 - 1000
+		  = 9000
+
+Application:
+-------------
+<aura:application extends="force:slds">
+    <aura:attribute name="fname" type="string" />
+    <aura:attribute name="lname" type="string"/>
+    <aura:attribute name="sal" type="integer"/>
+    <aura:attribute name="tax" type="integer"/>
+    <aura:attribute name="nsal" type="integer"/>
+    
+    
+    <div style="border:2px solid black;margin:100px;padding:20px;width:600px;">
+        <lightning:input label="First Name" type="text" value="{!v.fname}"/> 
+        <lightning:input label="Last Name" type="text" value="{!v.lname}"/>
+        <lightning:input label="Salary" type="number" value="{!v.sal}"/>
+        <lightning:input label="Tax (%)" type="number" value="{!v.tax}" onblur="{!c.calculateNetSalary}"/>
+        <lightning:input label="Net Salary" type="number" value="{!v.nsal}"/>
+        <center>
+            <!-- <lightning:button label="Calculate" onclick="{!c.calculateNetSalary}"/> -->
+            <lightning:button label="Refresh" onclick="{!c.refreshData}"/> 
+        </center>
+    </div>
+    
+</aura:application>
+
+
+Client-side controller:
+------------------------
+({
+	calculateNetSalary : function(component, event, helper) {
+		var salaryVal = component.get("v.sal");
+        var taxVal = component.get("v.tax");
+        var netSalary = (salaryVal)-(salaryVal*taxVal/100);
+        component.set("v.nsal",netSalary);
+	},
+    refreshData : function(component, event, helper) {
+		component.set("v.fname",null);
+        component.set("v.lname",null);
+        component.set("v.sal",null);
+        component.set("v.tax",null);
+        component.set("v.nsal",null);
+	} 
+})
+
+---------------------------------------------------------------
+<apex:facet name="header">
+<apex:facet name="footer">
+
+<aura:set attribute="title">
+<aura:set attribute="footer">
+
+Using Lightning:card
+--------------------
+
+Application:
+----------------
+<aura:application extends="force:slds">
+    <aura:attribute name="fname" type="string" />
+    <aura:attribute name="lname" type="string"/>
+    <aura:attribute name="sal" type="integer"/>
+    <aura:attribute name="tax" type="integer"/>
+    <aura:attribute name="nsal" type="integer"/> 
+    <br/><br/>
+    
+        <div style="width:600px;margin-left:200px;">
+            <lightning:card iconName="standard:individual" title="">
+            	<aura:set attribute="title">
+                	<h1>Employee Salary Form</h1>
+                </aura:set> 
+				<aura:set attribute="footer">
+                	copy rights @nara.dotnet
+                </aura:set>
+                <aura:set attribute="actions">
+                	<lightning:button label="Calculate" onclick="{!c.calculateNetSalary}"/>
+                    <lightning:button label="Refresh" onclick="{!c.refreshData}"/>
+                </aura:set>
+                <div style="padding:10px;">
+                	<lightning:input label="First Name" type="text" value="{!v.fname}"/> 
+                    <lightning:input label="Last Name" type="text" value="{!v.lname}"/>
+                    <lightning:input label="Salary" type="number" value="{!v.sal}"/>
+                    <lightning:input label="Tax (%)" type="number" value="{!v.tax}" />
+                    <lightning:input label="Net Salary" type="number" value="{!v.nsal}"/>
+               </div>
+            </lightning:card>
+        </div>
+    
+</aura:application>
+
+
+Client-side Controller:
+
+({
+	calculateNetSalary : function(component, event, helper) {
+		var salaryVal = component.get("v.sal");
+        var taxVal = component.get("v.tax");
+        var netSalary = (salaryVal)-(salaryVal*taxVal/100);
+        component.set("v.nsal",netSalary);
+	},
+    refreshData : function(component, event, helper) {
+		component.set("v.fname",null);
+        component.set("v.lname",null);
+        component.set("v.sal",null);
+        component.set("v.tax",null);
+        component.set("v.nsal",null);
+	} 
+})
+
+-------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+

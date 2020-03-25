@@ -1,0 +1,371 @@
+Component Events :
+
+Child Component : Register an Event + Fires an Event.
+
+Parent Component : Handling the Event
+
+
+<aura:method />
+***************
+We can invoke an action (method) from parent component to child component.
+
+We always write a <aura:method/> in Child Component, and that can be invoked from
+parent component.
+
+
+Classic :
+---------------
+Action Function:-
+
+<apex:actionfunction name="getData" action="{!getResults}">
+	<apex:param name="" value="" assignTo=""/>
+</apex:actionFunction>
+
+In JS:
+
+function showData(){
+	getData();
+}
+
+
+Lightning:
+------------
+<aura:method name="getData" action="{!c.getResults}">
+	<aura:attribute name="flag" type="boolean" />
+</aura:method>
+
+
+
+Class1:
+==========
+public class Class1{
+
+	public void Method1(){
+		// Logic.
+		
+		// Identify the class. (instance)
+		Class2 objc2 = new Class2();
+		// Call the Method.
+		objc2.Method2(40);
+	}
+}
+
+
+Class2:
+==========
+
+public class Class2{
+	public void Method2(Integer age){
+	
+	}
+}
+
+
+Ex 1:
+
+Component 1: AuraParentC1
+
+<aura:component >
+    <lightning:button label="Button 1" onclick="{!c.btn1Action}"/>	
+    <c:AuraChildC1 aura:id="one"/>
+</aura:component>  
+
+
+Controller JS:
+
+
+({
+	btn1Action : function(component, event, helper) {
+        // Identify the child Component 
+        var child = component.find("one"); 
+        // Call the <aura:Method> of Child Component.
+		child.btn2Action(true); 
+	}
+})
+
+
+
+Component : AuraChildC1
+
+<aura:component >
+    <aura:attribute name="boolflag" type="boolean" default="false"/>
+    
+    <!-- Aura Method Declaration -->
+    <aura:method name="btn2Action" action="{!c.displayButton2}">
+        <aura:attribute name="flag" type="boolean"/>
+    </aura:method>
+     
+    
+    <aura:if isTrue="{!v.boolflag}">
+        <lightning:button label="Button 2"/>
+    </aura:if>
+    
+</aura:component>
+
+
+Controller JS:
+
+
+({
+	displayButton2 : function(component, event, helper) {
+        // To get all the parameters from <aura:method/>
+        var Params = event.getParam('arguments');
+        console.log("Value is "+Params.flag);
+        component.set("v.boolflag",Params.flag);
+	}
+})
+
+
+Application :
+
+
+<aura:application extends="force:slds">
+    <c:AuraParentC1 /> 
+</aura:application>
+
+
+
+----------------------------------------------------------------
+
+Ex 2 :
+------
+Input Form + output Results
+
+Apex class:
+
+public class AccountDataController {
+	@auraEnabled
+    public static String createAccount(Account objA){
+        try{
+            Insert objA;
+            	return objA.id;
+        }catch(Exception e){
+            return 'error';
+        }
+    }
+    
+    @auraEnabled
+    public static List<Account> QueryAccounts(){
+        return [SELECT Id,Name,Phone,Industry FROM ACCOUNT Order by CreatedDate DESC LIMIT 15];
+    }
+}
+
+
+
+Component1 : AccountInputFormAura
+
+<aura:component controller="AccountDataController">
+    <aura:attribute name="acc" type="Account" default="{'sobjectType':'Account'}"/>
+    
+    <div style="margin-left:100px;margin-top:50px;width:500px;border:1px solid;">
+    	<lightning:card title="New Customer" iconName="standard:account">
+        	<aura:set attribute="actions">
+                <lightning:button label="Save" onclick="{!c.doSave}"/>
+                <lightning:button label="Cancel" onclick="{!c.doCancel}"/>
+            </aura:set>
+            <div style="padding:20px;">
+                <lightning:input label="Name" value="{!v.acc.Name}"/>
+                <lightning:input label="Phone" value="{!v.acc.Phone}"/>
+                <lightning:input label="Industry" value="{!v.acc.Industry}"/>
+            </div>
+        </lightning:card>
+    </div>
+    <c:AccountOutputFormAura aura:id="one"/>
+</aura:component>
+
+
+
+Controller JS:
+
+
+({
+	doSave : function(component, event, helper) {
+		var accRecord = component.get("v.acc");
+        var action = component.get("c.createAccount");
+        action.setParams({"objA":accRecord});
+        action.setCallback(this,function(response){
+           	var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != 'error'){
+                    var child = component.find("one");
+                    child.getData();
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	},
+    doCancel : function(component, event, helper){
+        component.set("v.acc",null);
+    }
+})
+
+
+
+Component2 : AccountOutputFormAura
+
+<aura:component controller="AccountDataController">
+    <aura:attribute name="lstAccounts" type="List"/>
+    <aura:attribute name="myColumns" type="List"/>
+    <aura:attribute name="flag" type="boolean"/>
+    
+    <aura:method name="getData" action="{!c.showResults}"/> 
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;"> 
+        	<lightning:dataTable
+                                 keyField="Id"
+                                 data ="{!v.lstAccounts}"
+                                 columns="{!v.myColumns}" />
+        </div>
+    </aura:if>
+</aura:component>
+
+
+Controller JS:
+
+({
+	showResults : function(component, event, helper) {
+        var cols = [
+            {label:"Account Name",fieldName:"Name",type:"text"},
+            {label:"Account Phone",fieldName:"Phone",type:"text"},
+            {label:"Account Industry",fieldName:"Industry",type:"text"}
+        ];
+        component.set("v.myColumns",cols);
+        
+		// Data
+        var action = component.get("c.QueryAccounts");
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != ''){
+                    component.set("v.lstAccounts",res);
+                    component.set("v.flag",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <c:AccountInputFormAura/>
+</aura:application> 
+
+
+-----------------------------------------------------------
+Ex3:
+
+Search input Form + Search Results Form
+
+Apex Class:
+
+
+public class searchResults {
+	@auraEnabled 
+    public static List<Account> searchData(string strIndustry){
+        return [SELECT Id,Name,Phone,Industry FROM ACCOUNT WHERE Industry =: strIndustry];
+    }
+}
+
+
+Component1 : SearchForm1
+
+<aura:component controller="searchResults">
+    <aura:attribute name="strkey" type="string" />
+    
+    <div style="margin-left:100px;margin-top:50px;width:500px;">
+    	<table>
+        	<tr> 
+            	<td>
+                    <lightning:input label="Industry" value="{!v.strkey}"/>
+                </td>
+                <td>
+                    <br/>
+                    <lightning:button label="Search" onclick="{!c.doSearch}"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <c:searchResultsForm1 aura:id="one"/>
+</aura:component>
+
+
+Controller JS:
+
+
+({
+	doSearch : function(component, event, helper) {
+		var searchParam = component.get("v.strkey");
+        var child = component.find("one");
+        child.getData(searchParam);
+	} 
+})
+
+
+Component2 : SearchResultsForm1
+
+
+<aura:component controller="searchResults">
+    <aura:attribute name="lstAccounts" type="List"/>
+    <aura:attribute name="myColumns" type="List"/>
+    <aura:attribute name="flag" type="boolean"/>
+    
+	<aura:method name="getData" action="{!c.fetchResults}">
+        <aura:attribute name="strsearchkey" type="string"/>
+    </aura:method>
+     
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;"> 
+        	<lightning:dataTable
+                                 keyField="Id"
+                                 data ="{!v.lstAccounts}"
+                                 columns="{!v.myColumns}" />
+        </div>
+    </aura:if>
+    
+</aura:component>
+
+
+Controller JS:
+
+({
+	fetchResults : function(component, event, helper) {
+		var cols = [
+            {label:"Account Name",fieldName:"Name",type:"text"},
+            {label:"Account Phone",fieldName:"Phone",type:"text"},
+            {label:"Account Industry",fieldName:"Industry",type:"text"}
+        ];
+        component.set("v.myColumns",cols);
+        
+        var Params = event.getParam('arguments');
+        var skey = Params.strsearchkey;
+        
+        var action = component.get("c.searchData");
+        action.setParams({"strIndustry":skey});
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            if(state == 'SUCCESS'){
+                var res = response.getReturnValue();
+                if(res != ''){
+                    component.set("v.lstAccounts",res);
+                    component.set("v.flag",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <c:searchForm1 /> 
+</aura:application>
+=====================================================================

@@ -1,0 +1,303 @@
+Lightning Custom Interfaces:
+------------------------------------
+Standard Interfaces:
+
+https://developer.salesforce.com/docs/component-library/overview/interfaces
+
+
+Interface:
+
+An interface is a collection Undefined variables (attributes) and methods (aura:methods) and
+collection of registered Events in lightning.
+
+
+1. <aura:attribute />
+2. <aura:method />
+3. <aura:registerEvent />
+
+
+OOP:
+
+Interface:
+
+global interface  interface1 {
+	void method1();
+    void method2();
+}
+
+
+Class:
+
+public class interface1Class implements interface1{
+    public void method1(){
+        // logic
+    }
+    public void method2(){
+        // logic
+    }
+}
+
+
+
+
+Interface with <aura:attribute/>
+-----------------------------------
+
+
+Interface:
+------------
+<aura:interface description="Interface template">
+	<aura:attribute name="name" type="String" />
+    <aura:attribute name="phone" type="String" />
+    <aura:attribute name="city" type="String" />
+    <aura:attribute name="country" type="String" />
+</aura:interface>
+
+
+Component 1 : EmployeeDetailsComponent
+------------------------------------------------
+
+<aura:component implements = "c:interface1">
+    <aura:attribute name="age" type="string" />
+    <aura:handler name="init" value="{!this}" action="{!c.loadEmployeeDetails}"/>
+    
+    <div style="margin-left:100px;margin-top:50px;width:500px;border:1px solid black;">
+    	<lightning:card title="Employee Details" iconName="standard:account">
+        	<div style="padding:20px;">
+                <b>Employee Name</b>		:		{!v.name} <br/> 
+                <b>Employee Phone</b>		:		{!v.phone} <br/>
+                <b>Employee City</b>		:		{!v.city} <br/>
+                <b>Employee Country</b>		:		{!v.country} <br/>
+                <b>Employee Age</b>			:		{!v.age} <br/> 
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
+
+
+Controller JS:
+------------------------
+
+({
+	loadEmployeeDetails : function(component, event, helper) {
+		component.set("v.name","Nara V");
+        component.set("v.phone","9705898616");
+        component.set("v.city","Kandukur");
+        component.set("v.country","India");
+        component.set("v.age","35");
+	}
+})
+
+
+
+Component2 : CompanyDetailsComponent
+------------------------------------
+
+<aura:component implements="c:interface1">
+    <aura:attribute name="employeeCount" type="string"/>
+    <aura:handler name="init" value="{!this}" action="{!c.loadCompanyDetails}"/>
+    
+    <div style="margin-left:100px;margin-top:50px;width:500px;border:1px solid black;">
+    	<lightning:card title="Company Details" iconName="standard:account">
+        	<div style="padding:20px;">
+                <b>Company Name</b>		:		{!v.name} <br/> 
+                <b>Company Phone</b>	:		{!v.phone} <br/>
+                <b>Company City</b>		:		{!v.city} <br/>
+                <b>Company Country</b>	:		{!v.country} <br/>
+                <b>Employee Count</b>	:		{!v.employeeCount} <br/> 
+            </div>
+        </lightning:card>
+    </div>
+    
+</aura:component>
+
+
+Controller JS:
+------------------------
+
+({
+	loadCompanyDetails : function(component, event, helper) {
+		component.set("v.name","Appshark");
+        component.set("v.phone","040123456");
+        component.set("v.city","Hyderabad");
+        component.set("v.country","India");
+        component.set("v.employeeCount","1000");
+	}
+})
+
+
+Application:
+------------------------
+<aura:application extends="force:slds">
+    <c:EmployeeDetailsComponent />
+    <c:CompanyDetailsComponent />
+</aura:application>
+
+
+
+********************************************************************
+Interface with <aura:method />
+********************************************************************
+
+Interface:
+---------------
+
+<aura:interface description="Interface template">
+	<aura:method name="inputs" action="{!c.getInputs}">
+        <aura:attribute name="name" type="string"/>
+        <aura:attribute name="phone" type="string" />
+        <aura:attribute name="city" type="string"/>
+        <aura:attribute name="country" type="string"/>
+    </aura:method>
+</aura:interface>
+
+
+
+Component:
+---------------
+<aura:component implements ="c:interface2">
+    
+    <aura:attribute name="flag" type="boolean" default="false" />
+    <aura:attribute name="myName" type="string"/>
+    <aura:attribute name="myPhone" type="string"/>
+    <aura:attribute name="myCity" type="string"/>
+    <aura:attribute name="myCountry" type="string"/> 
+    
+    <div style="margin-left:100px;width:500px;">
+          <lightning:button label="Show Customer Details" onclick="{!c.showDetails}"/>       
+    </div>            
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:50px;width:500px;border:1px solid black;">
+        	<lightning:card title="Customer Details" iconName="standard:account">
+            	<div style="padding:20px;">
+                    <b> Name</b>		:		{!v.myName} <br/> 
+                    <b>Phone</b>		:		{!v.myPhone} <br/>
+                    <b> City</b>		:		{!v.myCity} <br/>
+                    <b> Country</b>		:		{!v.myCountry} <br/> 
+            </div>
+            </lightning:card>
+        </div>
+    </aura:if>
+    
+</aura:component>
+
+
+Controller JS:
+---------------
+
+({
+	showDetails : function(component, event, helper) {
+		// pass the values to the interface method
+        component.inputs('Nara V','9705898616','Hyderabad','Country'); 
+	},
+    getInputs : function(component, event, helper){ 
+        // to get all the values from aura:method
+        // Reading the values from interface method.
+        var params = event.getParam("arguments");
+        component.set("v.myName",params.name);
+        component.set("v.myPhone",params.phone);
+        component.set("v.myCity",params.city);
+        component.set("v.myCountry",params.country);
+        component.set("v.flag",true);
+    }
+})
+
+
+
+Application:
+---------------
+
+<aura:application extends="force:slds">
+    <c:interface2Component />
+</aura:application>
+
+
+
+***************************************************************
+Interface with <aura:registerEvent >
+***************************************************************
+
+Event:
+------------
+<aura:event type="COMPONENT" description="Event template" >
+    <aura:attribute name="name" type="string"/>
+    <aura:attribute name="phone" type="string"/>
+    <aura:attribute name="city" type="string"/>
+    <aura:attribute name="country" type="string"/> 
+</aura:event>
+
+
+Interface:
+------------
+
+<aura:interface description="Interface template">
+    <aura:registerEvent name="first" type="c:interfaceE1"/>
+</aura:interface>
+
+
+Component:
+------------
+
+<aura:component implements ="c:interface5">
+    
+    <aura:handler name="first" event="c:interfaceE1" action="{!c.invoke}"/> 
+    
+    <aura:attribute name="flag" type="boolean" default="false" />
+    <aura:attribute name="myName" type="string"/>
+    <aura:attribute name="myPhone" type="string"/>
+    <aura:attribute name="myCity" type="string"/>
+    <aura:attribute name="myCountry" type="string"/>  
+    
+    <div style="margin-left:100px;width:500px;">
+          <lightning:button label="Show Customer Details" onclick="{!c.showDetails}"/>       
+    </div>
+    
+    <aura:if isTrue="{!v.flag}">
+    	<div style="margin-left:100px;margin-top:50px;width:500px;border:1px solid black;">
+        	<lightning:card title="Customer Details" iconName="standard:account">
+            	<div style="padding:20px;">
+                    <b> Name</b>		:		{!v.myName} <br/> 
+                    <b>Phone</b>		:		{!v.myPhone} <br/>
+                    <b> City</b>		:		{!v.myCity} <br/>
+                    <b> Country</b>		:		{!v.myCountry} <br/> 
+            </div>
+            </lightning:card>
+        </div>
+    </aura:if>
+    
+    
+</aura:component>
+
+
+Controller JS:
+------------------------
+
+({
+	// component mehtod.
+    showDetails : function(component, event, helper) {
+		// get the Event
+		var evt = component.getEvent("first");
+		// set the values to the Event
+        evt.setParams({"name":"Nara V","phone":"9705898616","city":"Kandukur","country":"India"});
+		// Fire the event
+		evt.fire();	
+	}, 
+    invoke : function (component, event, helper){ // event method
+        component.set("v.myName",event.getParam("name"));
+        component.set("v.myPhone",event.getParam("phone"));
+        component.set("v.myCity",event.getParam("city"));
+        component.set("v.myCountry",event.getParam("country"));
+        component.set("v.flag",true);
+    }
+})
+
+
+Application:
+------------
+<aura:application extends="force:slds">
+    <c:interface5Component />
+</aura:application>
+
+
+----------------------------------------------------------------------------------

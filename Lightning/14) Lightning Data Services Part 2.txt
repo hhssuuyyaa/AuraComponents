@@ -1,0 +1,491 @@
+<lightning:recordEditForm />
+
+recordId - TO specify Id of the record 
+objectApiName - Object Name of the record
+
+onLoad - when recordEditForm is loaded.
+onSubmit - before insert - on submit of the recordEditForm
+onSuccess - after insert - after the submit of the recordEditForm
+onError - when you have any error on submit
+
+
+It uses <lightning:inputField /> to design the new or edit form.
+
+
+Ex1 :
+
+<aura:application extends="force:slds">
+	<div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+        <lightning:recordEditForm recordId="0012v00002YwMdnAAF" objectApiName="Account">
+            <lightning:inputField fieldName="Name" />
+            <lightning:inputField fieldName="Phone" />
+            <lightning:inputField fieldName="Industry"/>
+        </lightning:recordEditForm>
+    </div> 
+</aura:application>
+
+
+
+Ex2:
+
+Standard submit using recordEditForm : To edit the record
+
+
+<aura:application extends="force:slds">
+	<div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+        <lightning:recordEditForm recordId="0012v00002YwMdnAAF" objectApiName="Account">
+            <lightning:card title="Edit Customer" iconName="standard:account">
+                <div style="padding:20px;">
+                    <lightning:inputField fieldName="Name" />
+                    <lightning:inputField fieldName="Phone" />
+                    <lightning:inputField fieldName="Industry"/>
+                </div>
+                <aura:set attribute="actions">
+                    <lightning:button label="Save" type="submit" />
+                </aura:set>
+                </lightning:card> 
+        </lightning:recordEditForm>
+    </div> 
+</aura:application>
+
+
+Ex 3:
+
+Standard submit using recordEditForm : To create a new record
+
+
+<aura:application extends="force:slds">
+	<div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+        <lightning:recordEditForm  objectApiName="Account">
+            <lightning:card title="Edit Customer" iconName="standard:account">
+                <div style="padding:20px;">
+                    <lightning:inputField fieldName="Name" />
+                    <lightning:inputField fieldName="Phone" />
+                    <lightning:inputField fieldName="Industry"/>
+                </div>
+                <aura:set attribute="actions">
+                    <lightning:button label="Save" type="submit" />
+                </aura:set>
+                </lightning:card> 
+        </lightning:recordEditForm>
+    </div> 
+</aura:application>
+
+
+
+Ex 4:
+
+Refresh the recordEditForm once record is created.
+
+<aura:application extends="force:slds">
+    <aura:attribute name="flag" type="boolean" default="true"/>
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+            <lightning:recordEditForm  objectApiName="Account" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;">
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div>
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+</aura:application>
+
+Controller jS:
+
+Controller JS:
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        component.set("v.confirmationMsg",true); 
+	} 
+})
+
+
+
+
+Ex 5:
+
+Display the confirmation message (text message) on successful DML.
+
+
+Component :
+
+<aura:application extends="force:slds">
+    <aura:attribute name="flag" type="boolean" default="true"/>
+    <aura:attribute name="confirmationMsg" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+            <lightning:recordEditForm  objectApiName="Account" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;">
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div>
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.confirmationMsg}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<p style="color:green;font-size:20px;">Account has been created successfully.</p>
+        </div>
+    </aura:if>
+</aura:application>
+
+
+
+Controller JS:
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        component.set("v.confirmationMsg",true); 
+	} 
+})
+
+
+
+Ex 6 : Using Ui:Message 
+
+
+Component:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="flag" type="boolean" default="true"/>
+    <aura:attribute name="confirmationMsg" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+            <lightning:recordEditForm  objectApiName="Account" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;">
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div>
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.confirmationMsg}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<ui:message title="Confirmation" severity="confirm" closable="true">
+                Account has been created successfully.
+			</ui:message>
+        </div>
+    </aura:if>
+</aura:application>
+
+
+Controller JS:
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        component.set("v.confirmationMsg",true); 
+	} 
+})
+
+
+Classic:
+
+From Page:
+
+-> Name, Phone, Industry
+
+trigger:
+
+beforeInsert(){
+	for(Account objA : trigger.new){
+		objA.Rating='Hot';
+		objA.BillingCity='Hyderabad';
+		objA.BillingCountry = 'India';
+	}
+
+}
+
+
+
+
+Ex 7: How to prevent the standard submit.
+
+Set and modify the parameters on submit.
+
+Component :
+---------
+
+<aura:application extends="force:slds">
+    <aura:attribute name="flag" type="boolean" default="true"/>
+    <aura:attribute name="confirmationMsg" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+            <lightning:recordEditForm aura:id="rec"  objectApiName="Account" onsubmit="{!c.onsubmitAction}" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;"> 
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div>
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.confirmationMsg}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<ui:message title="Confirmation" severity="confirm" closable="true">
+                Account has been created successfully.
+			</ui:message>
+        </div>
+    </aura:if>
+</aura:application>
+
+
+Controller JS:
+---------------
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        component.set("v.confirmationMsg",true); 
+	},
+    onsubmitAction : function(component, event, helper){
+        event.preventDefault();// it just stops the standard submit.
+        var evtFields = event.getParam("fields"); // list of all the fields of that objectAppiName
+        evtFields["Rating"] ='Hot';
+        evtFields["BillingCountry"] = 'India';
+        evtFields["BillingCity"] = 'Hyderabad';
+        component.find("rec").submit(evtFields);  
+    }
+})
+
+
+Note: To run the action on load of the component:
+
+<aura:handler name="init" value="{!this}" action="{!c.onLoadAction}"/>
+
+Ex 8:
+
+How to read the response parameters :
+
+component :
+
+<aura:application extends="force:slds">
+    <aura:attribute name="flag" type="boolean" default="true"/>
+    <aura:attribute name="confirmationMsg" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="margin-left:100px;margin-top:100px;width:500px;border:1px solid;">
+            <lightning:recordEditForm aura:id="rec"  objectApiName="Account" onsubmit="{!c.onsubmitAction}" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;"> 
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div>
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.confirmationMsg}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<ui:message title="Confirmation" severity="confirm" closable="true">
+                Account has been created successfully.
+			</ui:message>
+        </div>
+    </aura:if>
+</aura:application>
+
+
+controller JS:
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        var param = event.getParams();
+        console.log(JSON.stringify(param));
+        var recId = param.response.id; // this will return the record Id after success.
+        console.log(recId);
+        if(recId != ''){
+        	component.set("v.confirmationMsg",true);    
+        }
+         
+	},
+    onsubmitAction : function(component, event, helper){
+        event.preventDefault();// it just stops the standard submit.
+        var evtFields = event.getParam("fields"); // list of all the fields of that objectAppiName
+        evtFields["Rating"] ='Hot';
+        evtFields["BillingCountry"] = 'India';
+        evtFields["BillingCity"] = 'Hyderabad';
+        component.find("rec").submit(evtFields);  
+    }
+})
+
+
+
+
+Ex 9:
+
+How to add the recordEditForm to the record page.
+
+
+Component :
+
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+	<aura:attribute name="flag" type="boolean" default="true"/>
+    <aura:attribute name="confirmationMsg" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.flag}"> 
+        <div style="width:500px;border:1px solid;">
+            <lightning:recordEditForm aura:id="rec"  objectApiName="Account" onsubmit="{!c.onsubmitAction}" onsuccess ="{!c.onSuccessAction}"> 
+                <lightning:card title="Edit Customer" iconName="standard:account">
+                    <div style="padding:20px;"> 
+                        <lightning:inputField fieldName="Name" />  
+                        <lightning:inputField fieldName="Phone" />
+                        <lightning:inputField fieldName="Industry"/>
+                    </div> 
+                    <aura:set attribute="actions">
+                        <lightning:button label="Save" type="submit" />
+                    </aura:set>
+                    </lightning:card> 
+            </lightning:recordEditForm>
+        </div> 
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.confirmationMsg}">
+    	<div style="margin-left:100px;margin-top:20px;width:500px;">
+        	<ui:message title="Confirmation" severity="confirm" closable="true">
+                Account has been created successfully.
+			</ui:message>
+        </div>
+    </aura:if>
+</aura:component>
+
+
+Controller JS:
+
+
+({
+	onSuccessAction : function(component, event, helper) {
+		console.log("Account has been created successfully.");
+        component.set("v.flag",false); // hide the edit form
+        component.set("v.flag",true); // creates a new form
+        var param = event.getParams();
+        console.log(JSON.stringify(param));
+        var recId = param.response.id; // this will return the record Id after success.
+        console.log(recId);
+        if(recId != ''){
+        	component.set("v.confirmationMsg",true);    
+        }
+         
+	},
+    onsubmitAction : function(component, event, helper){
+        event.preventDefault();// it just stops the standard submit.
+        var evtFields = event.getParam("fields"); // list of all the fields of that objectAppiName
+        evtFields["Rating"] ='Hot';
+        evtFields["BillingCountry"] = 'India';
+        evtFields["BillingCity"] = 'Hyderabad';
+        component.find("rec").submit(evtFields);  
+    }
+})
+
+
+-------------------------------------------------------------------
+<lightning:recordForm /> = <lightning:recordViewForm/> + <lightning:recordEditForm />
+
+recordId 
+objectApiName
+Mode="view" (or) Mode ="edit"
+LayoutType="Full" (or) LayoutType="Compact"
+Fields =""
+
+
+
+
+Ex 1:
+
+<aura:application extends="force:slds">
+    <div style="margin-left:100px;margin-top:100px;width:500px;height:500px;">
+    	<lightning:recordForm recordId="0012v00002dZ4G7AAK" objectApiName="Account" mode="edit" layoutType="Compact" />
+    </div>
+</aura:application>
+
+
+
+Ex 2 : mode="edit"
+
+<aura:application extends="force:slds">
+    <aura:attribute name="fields" type="List" default="['Name','Phone','Industry']"/>
+    <div style="margin-left:100px;margin-top:100px;width:500px;height:500px;">
+    	<lightning:recordForm recordId="0012v00002dZ4G7AAK" objectApiName="Account" mode="edit" fields="{!v.fields}" />
+    </div>
+</aura:application>
+
+
+Ex 3 : mode="view"
+
+<aura:application extends="force:slds">
+    <aura:attribute name="fields" type="List" default="['Name','Phone','Industry']"/>
+    <div style="margin-left:100px;margin-top:100px;width:500px;height:500px;">
+    	<lightning:recordForm recordId="0012v00002dZ4G7AAK" objectApiName="Account" mode="view" fields="{!v.fields}" />
+    </div>
+</aura:application>
+
+-------------------------------------------------------------------------------------------------
+Register a contact from account record Page:
+
+
+step1: use the below interfaces
+
+implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global"
+
+
+step2 :
+Use <lightning:recordEditForm recordId="{!v.recordId}" objectApiName="Contact" >
+
+use standard submit.
+
+pass the recordId to AccountId field.
+-------------------------------------------------------------------------------------------------

@@ -1,0 +1,376 @@
+Agenda:
+-------------
+1. aura:handlers
+2. client side controller
+3. helpers
+4. component Methods
+    get() : To get the value from the attribute
+	set() : To set the value to the attribute.
+
+----------------------------------------
+
+
+<aura:handlers:
+
+Syntax:
+
+<aura:handler name="init" value="{!this}" action="{!c.run}"/>
+
+
+init : constructor in apex code.
+
+
+server side controller:
+
+public class className{
+	// default constructor.
+	public className(){
+		// initializations.
+	}
+
+}
+
+----------------------------------------
+
+Ex 1:
+
+
+Component : Handler1
+
+<aura:component >
+    <!-- Web Devleopment -->
+    <aura:handler name="init" value="{!this}" action="{!c.ShowOnLoadMessage}"/> 
+</aura:component> 
+
+
+
+Client side controller:
+
+
+({
+    // Actions
+    /*
+      Author : 
+      Date   :
+      Description:
+      	-
+     */
+	ShowOnLoadMessage : function(component, event, helper) { 
+		alert('Welcome to Lightning Client side controller.'); 
+	}
+})
+
+
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <c:Handler1 />
+</aura:application>
+
+
+
+--------------------------------------------------------------------
+How to debug the results in lightning:
+
+console.log('ShowOnLoadMessage invoked...');
+
+
+Ex2 :
+------------
+Get and set the values to the attributes in client side controller:
+
+Arithmetic Addition, Multiplication
+
+
+a = 10
+b = 20 
+
+(a+b)
+(a*b)
+
+1. attribute to store both a and b values.
+2. attribute to store the result (+ / *)
+3. aura:hander (init)
+
+Component methods:
+
+1. get() : to get the value from the attribute
+2. set() : to set the value to the attribute
+
+Apex code:
+
+public String strName{get;set;}
+
+
+class :
+
+
+public class className{
+	public integer firstvalue;
+}
+
+How to pass the value to the class variable:
+
+className c = new className();
+c.firstvalue = 10;
+
+--------------------------------------------------------------
+
+VF Page code:
+
+<apex:inputtext value="{!empName}" />
+<aura:attribute name="empName" type="string" default="Venkat V"/>
+
+
+apex code:
+
+public String empName{get;set;} // setter : set the value, getter : get the value
+
+--------------------------------------------------------------
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="firstvalue" type="integer" default="10"/>
+    <aura:attribute name="secondvalue" type="integer" default="20"/>
+    <aura:attribute name="additionresult" type="integer" default="0"/>
+    <aura:attribute name="multiplicationresult" type="integer" default="0"/>
+    <aura:handler name="init" value="{!this}" action="{!c.run}"/> 
+    
+    <br/><br/>
+    First  Value 	: 	{!v.firstvalue} <br/>
+    Second Value 	:	{!v.secondvalue} <br/>
+    <br/>
+    Addition 			:	{!v.additionresult} <br/>
+    Multiplication	:	{!v.multiplicationresult} <br/>
+</aura:application>
+
+
+Controller JS:
+
+({
+	run : function(component, event, helper) {
+		var a = component.get("v.firstvalue");
+        var b = component.get("v.secondvalue");
+        console.log("a:"+a);
+        console.log("b:"+b);
+        
+        
+        var result = 0;
+        result = (a+b);
+        component.set("v.additionresult",result);
+        console.log("result1 :"+result);
+        result = (a*b);
+        component.set("v.multiplicationresult",result);
+        console.log("result2 :"+result); 
+	}
+})
+
+
+---------------------------------------------------------
+Ex 3:
+
+Application:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="first" type="integer" default="10" />
+    <aura:attribute name="second" type="integer" default="20"/>
+    <aura:attribute name="add" type="integer" default="0"/>
+    <aura:attribute name="mul" type="integer" default="0"/>
+    
+    <div style="padding:20px;width:500px;">
+        <lightning:card iconName="utility:choice">
+            <aura:set attribute="title">
+                <h1>ArithmeticOperations (+ / *)</h1>
+            </aura:set>
+            <aura:set attribute="actions">
+                <lightning:button label="Add" onclick="{!c.add}"/>
+                <lightning:button label="Mul" onclick="{!c.mul}"/>
+            </aura:set>
+            
+            <div style="padding:5px;">
+                First Value 			:		{!v.first} <br/>
+                Second Value			:		{!v.second} <br/>
+                <br/>
+                Addition Result			:		{!v.add} <br/>
+                Multiplication Result	:		{!v.mul} <br/> 
+            </div>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+Client side controller:
+
+
+({
+	add : function(component, event, helper) {
+		var a = component.get("v.first");
+        var b = component.get("v.second");
+        var result = (a+b);
+        component.set("v.add",result);
+        console.log(a);
+        console.log(b);
+        console.log(result);
+	},
+    mul : function(component, event, helper){
+        var a = component.get("v.first");
+        var b = component.get("v.second");
+        var result = (a*b);
+        component.set("v.mul",result);
+        console.log(a);
+        console.log(b);
+        console.log(result);
+    }
+})
+
+
+---------------------------------------------------
+Ex 4:
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="first" type="integer"  />
+    <aura:attribute name="second" type="integer" />
+    <aura:attribute name="add" type="integer" />
+    <aura:attribute name="mul" type="integer" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <div style="padding:20px;width:500px;">
+        <lightning:card iconName="utility:choice">
+            <aura:set attribute="title">
+                <h1>ArithmeticOperations (+ / *)</h1>
+            </aura:set>
+            <aura:set attribute="actions">
+                <lightning:button label="Add" onclick="{!c.add}"/>
+                <lightning:button label="Mul" onclick="{!c.mul}"/>
+            </aura:set>
+            
+            <div style="padding:5px;">
+                First Value 			:		{!v.first} <br/>
+                Second Value			:		{!v.second} <br/>
+                <br/>
+                Addition Result			:		{!v.add} <br/>
+                Multiplication Result	:		{!v.mul} <br/> 
+            </div>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+Client side controller:
+
+
+({
+    // to initiate the attribute when a component is loaded.
+    doInit : function(component){
+        component.set("v.first",100);
+        component.set("v.second",200);
+        component.set("v.add",0);
+        component.set("v.mul",0);
+    },
+    add : function(component, event, helper) {
+		var a = component.get("v.first");
+        var b = component.get("v.second");
+        var result = (a+b);
+        component.set("v.add",result);
+        console.log(a);
+        console.log(b);
+        console.log(result);
+	},
+    mul : function(component, event, helper){
+        var a = component.get("v.first");
+        var b = component.get("v.second");
+        var result = (a*b);
+        component.set("v.mul",result);
+        console.log(a);
+        console.log(b);
+        console.log(result);
+    }
+})
+
+
+----------------------------------------------
+
+helper :
+
+To reuse the method code in client side controller.
+
+
+Application:
+
+<aura:application extends="force:slds">
+    <aura:attribute name="first" type="integer"  />
+    <aura:attribute name="second" type="integer" />
+    <aura:attribute name="add" type="integer" />
+    <aura:attribute name="mul" type="integer" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <div style="padding:20px;width:500px;">
+        <lightning:card iconName="utility:choice">
+            <aura:set attribute="title">
+                <h1>ArithmeticOperations (+ / *)</h1>
+            </aura:set>
+            <aura:set attribute="actions">
+                <lightning:button label="Add" onclick="{!c.add}"/>
+                <lightning:button label="Mul" onclick="{!c.mul}"/>
+            </aura:set>
+            
+            <div style="padding:5px;">
+                First Value 			:		{!v.first} <br/>
+                Second Value			:		{!v.second} <br/>
+                <br/>
+                Addition Result			:		{!v.add} <br/>
+                Multiplication Result	:		{!v.mul} <br/> 
+            </div>
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+Client side controller:
+
+({
+    // to initiate the attribute when a component is loaded.
+    doInit : function(component){
+        component.set("v.first",100);
+        component.set("v.second",200);
+        component.set("v.add",0);
+        component.set("v.mul",0);
+    },
+    add : function(component, event, helper) { 
+		helper.calculate(component,'add');
+	},
+    mul : function(component, event, helper){
+        helper.calculate(component,'mul');
+    }
+})
+
+
+Helper:
+
+
+({
+	calculate : function(c,actionName) {
+		var a = c.get("v.first");
+        var b = c.get("v.second");
+        var result = 0;
+        if(actionName == 'add'){
+			c.set("v.add",(a+b));           
+        }
+        if(actionName == 'mul'){
+            c.set("v.mul",(a*b));
+        }
+	}
+})
+
+------------------------------------------------------------------------
+
+
+
+
+
+

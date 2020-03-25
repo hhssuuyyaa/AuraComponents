@@ -1,0 +1,332 @@
+Working with Apex:
+----------------------
+in Apex class:
+
+Account accountRecord; // Declaration of sobject
+Sobject accountRecord; // Sobject declaration
+
+Initialization:
+accountRecord = new Account(); // Initialization.
+Account accountRecord = new Account(); // Declaration and Initialization.
+
+
+How to initialize data to the fields:
+
+Account accountRecord = new Account(Name='Nara V',Phone='12345',Industry='Software');
+
+Insert accountRecord; // DML (INsert operation)
+
+----------------------------------------------------------------------
+
+in Lightning:
+
+<aura:attribute name="accountRecord" type="Account" />
+
+
+Declaration and Initialization:
+
+<aura:attribute name="accountRecord" type="Account" default="{'sobjectType':'Account'}"/>
+
+How to initialize data to the fields:
+
+<aura:attribute name="accountRecord" type="Account" default="{'sobjectType':'Account',
+															  Name:'Nara V',
+															  Phone:'12345',
+															  Industry:'software'
+															}"/>
+															
+															
+
+Ex1:
+
+Declare the default values to an Sobject attribute:
+
+Application :
+
+<aura:application extends="force:slds">
+    <aura:attribute name="accountRecord" type="Account" default="{
+                                                                  'sobjectType':'Account',
+                                                                 	Name:'Nara V',
+                                                                 	Phone:'9705898616',
+                                                                    Industry :'software'
+                                                                 }"/>
+    
+    <lightning:button label="Invoke" onclick="{!c.showData}"/>
+</aura:application>
+
+
+client-side controller code:
+
+({
+	showData : function(component, event, helper) {
+		var account  = component.get("v.accountRecord");
+        console.log(account.Name);
+        console.log(account.Phone);
+        console.log(account.Industry);
+	}
+})
+
+
+---------------------------------------------------------------------------
+How to perform DML operation (Insert) using serverside controller
+---------------------------------------------------------------------------
+1. apex class (to perform DML operation)
+2. invoke apex method from client-side controller.
+
+
+
+Application:
+-------------------------
+<aura:application extends="force:slds" controller="CustomerRegistrationClass"> 
+    <aura:attribute name="accountRecord" type="Account" default="{
+                                                                  'sobjectType':'Account',
+                                                                 	Name:'Nara V',
+                                                                 	Phone:'9705898616',
+                                                                    Industry :'software'
+                                                                 }"/>
+    
+    <lightning:button label="Invoke" onclick="{!c.saveData}"/> 
+</aura:application>
+
+
+Client-side controller:
+-------------------------
+
+({
+	saveData : function(component, event, helper) {
+		var account  = component.get("v.accountRecord");
+        console.log(JSON.stringify(account));
+        
+        var action = component.get("c.createAccount");
+        action.setParams({"acc":account});
+        action.setCallback(this,function(response){
+           	var state = response.getState();
+            console.log(state);
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue();
+                console.log(result);
+                alert(result);
+            }
+        });
+        $A.enqueueAction(action);
+	} 
+})
+
+
+
+Server-side Controller:
+-------------------------
+
+public class CustomerRegistrationClass {
+	@auraEnabled
+    public static string createAccount(Account acc){
+        // Exception Handling.
+        try{
+            insert acc;
+            	return acc.Id;
+        }catch(exception e){
+            return 'Exception:'+e.getMessage();
+        }
+    }
+}
+
+
+---------------------------------------------------------------------------------
+How to take an input and perform a DML operations using server-side controller method.
+---------------------------------------------------------------------------------
+
+component.set("v.accountRecord",null);
+account obja = new account(); // null reference
+
+
+
+Application:
+------------------
+<aura:application extends="force:slds" controller="CustomerRegistrationClass"> 
+    <aura:attribute name="accountRecord" type="Account" default="{
+                                                                  'sobjectType':'Account'
+                                                                 }"/>
+    
+    <!-- <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>  --> 
+    
+    <div style="margin-left:100px;margin-top:100px;height:300px;width:700px;">
+    	<lightning:card title="Customer Registration Form" iconName="standard:account">
+        	<aura:set attribute="actions">
+            	<lightning:button label="Save" onclick="{!c.saveData}"/>
+                <lightning:button label="Cancel" onclick="{!c.cancelData}"/>
+            </aura:set>
+            <div style="padding:20px;">
+            	<lightning:input label="Name" value="{!v.accountRecord.Name}"/>
+            	<lightning:input label="Phone" value="{!v.accountRecord.Phone}"/>
+            	<lightning:input label="Industry" value="{!v.accountRecord.Industry}"/>
+            </div>
+            
+        </lightning:card>
+    </div>
+</aura:application>
+
+
+
+client-side controller code:
+------------------------------
+
+({
+    doInit : function(component, event, helper){
+      	component.set("v.accountRecord.Name",'Nara V');
+        component.set("v.accountRecord.Phone",'1234567890');
+        component.set("v.accountRecord.Industry",'Software');
+    },
+    saveData : function(component, event, helper) {
+		var account  = component.get("v.accountRecord");
+        console.log(JSON.stringify(account));
+        
+        var action = component.get("c.createAccount");
+        action.setParams({"acc":account});
+        action.setCallback(this,function(response){
+           	var state = response.getState();
+            console.log(state);
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue();
+                console.log(result);
+                alert(result);
+            }
+        });
+        $A.enqueueAction(action);
+	},
+    cancelData : function(component, event, helper){
+        component.set("v.accountRecord",null);
+    }
+})
+
+
+Apex class:
+--------------
+
+public class CustomerRegistrationClass {
+	@auraEnabled
+    public static string createAccount(Account acc){
+        // Exception Handling.
+        try{
+            insert acc;
+            	return acc.Id;
+        }catch(exception e){
+            return 'Exception:'+e.getMessage();
+        }
+    }
+}
+
+----------------------------------------------------------------------------
+How to use wrapper class in Lightning
+----------------------------------------------------------------------------
+
+Wrapper Declaration:
+
+public class className{
+
+	// wrapper class
+	public class wrapclass{
+		public Integer age;
+		public String strName;
+		public List<String> cities;
+	}
+}
+
+
+Integer a; // data type is : integer (standard)
+List<String> strNames; // data type is : List (standard)
+wrapclass objw; // data type is : wrapclass (custom type)
+	- A wrapper can return multiple type of data.
+	wrap = integer + string + list + etc.
+	
+
+
+
+Ex:
+----
+Application:
+-----------------
+<aura:application extends="force:slds" controller="CustomerDetailsController">
+    <!-- attribute declaration for the wrapper -->
+    <aura:attribute name="accountRecord" type="CustomerDetailsController.customerInfo"/>
+    <aura:attribute name="strKey" type="string"/>
+    <aura:attribute name="flag" type="boolean" default="false"/>
+    
+    <div style="margin-left:100px;margin-top:100px;height:100px;width:500px;">
+        <lightning:input label="Industry" value="{!v.strKey}"/> <br/> 
+        <lightning:button label="Search" onclick="{!c.searchData}"/>
+    </div> 
+    
+    <aura:if isTrue="{!v.flag}"> 
+    	<div style="margin-left:100px;margin-top:20px;height:400px;width:500px;">
+            <lightning:card title="Customer Information" iconName="standard:account">
+                <div style="padding:20px;border:1px solid green;">
+                    <b>Name</b> 	:	{!v.accountRecord.accName} <br/>
+                    <b>Phone</b>	:	{!v.accountRecord.accPhone} <br/>
+                    <b>Industry</b>	:	{!v.accountRecord.accIndustry}
+                </div>
+            </lightning:card>
+        </div>
+    </aura:if>
+    
+</aura:application>
+
+
+client-side controller:
+------------------------
+
+({
+	searchData : function(component, event, helper) {
+		var key = component.get("v.strKey");
+        var action = component.get("c.SearchAccount"); 
+        action.setParams({"strIndustry":key});
+        action.setCallback(this,function(response){
+           	var state = response.getState();
+            console.log(state);
+            if(state == 'SUCCESS'){
+                var result = response.getReturnValue();
+                component.set("v.accountRecord",result);
+                component.set("v.flag",true);
+                alert(result.status);
+            }else{
+                var result = response.getReturnValue();
+                alert(result.status);
+            }
+        });
+        $A.enqueueAction(action);
+	}
+})
+
+
+server-side controller:
+--------------------------
+
+public class CustomerDetailsController {
+
+    @auraEnabled
+    public static customerInfo SearchAccount(String strIndustry){
+        customerInfo obj = new customerInfo();
+        try{
+            Account objA = new Account();
+            objA = [SELECT ID,Name,Phone,Industry FROM ACCOUNT WHERE Industry =: strIndustry limit 1]; 
+            
+            obj.accName = objA.Name;
+            obj.accPhone = objA.Phone;
+            obj.accIndustry = objA.Industry;
+            obj.status = 'SUCCESS';
+        }
+        catch(Exception e){
+            obj.status = 'Error:'+e.getMessage();
+        }
+        return obj; 
+    }
+    
+    // wrapper class
+    public class customerInfo{
+       @auraEnabled public String accName;
+       @auraEnabled public String accPhone;
+       @auraEnabled public String accIndustry;
+       @auraEnabled public String status;
+    }
+}
+
+--------------------------------------------------------------------

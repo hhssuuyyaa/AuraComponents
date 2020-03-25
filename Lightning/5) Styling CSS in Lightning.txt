@@ -1,0 +1,209 @@
+Agenda:
+-----------
+styles in lightning (CSS)
+
+
+VF pages:
+-----------
+Inline / internal css
+
+
+Inline CSS:
+------------
+<apex:commandbutton value="Submit" action="{!runAction}" style="height:100px;width:100px;"/>
+
+Internal CSS:
+--------------
+<style>
+	.buttonCSS{
+		height:100px;
+		width:100px;
+	}
+</style>
+
+-> We can reuse the internal css in the entire VF Page.
+
+------------------------------------------------------------
+CSS in Lightning:
+------------------------------------------------------------
+Inline CSS:
+-----------
+<div style="height:100px;width:100px;border:1px solid black;">
+	<div style="height:50px;width:50px;">
+	
+	</div>
+</div>
+
+
+
+Internal CSS:
+-----------
+for ex:
+----------
+<div class="divbox1">
+	content of the parent Div
+	<div class="divbox2">
+		content of the child Div
+			<div class="divbox3">
+				content of the grand child Div
+			</div>
+	</div>
+</div>
+
+For the parent tags:
+----------------------
+.THIS.divbox1 {						//for parent div we write this.divbox1 but in child div tag we will give space between this and divbox
+	height:100px;
+	width:100px;
+	padding:10px;
+	margin-left:5px;
+	margin-top:20px;
+	border-radius:20px;
+	background-color:green;
+}
+.THIS .divbox2{						//this and divbox ke beech me space btara h ye child div h
+	height:50px;
+	width:50px;
+	background-color:blue;
+}
+.THIS .divbox3{
+	height:30px;
+	width:30px;
+	background-color:red;
+}
+
+
+
+Example1:
+-----------
+<aura:application extends="force:slds">
+	<!-- Inline CSS -->
+    <div style="height:500px;width:500px;background-color:green;margin-left:100px;padding:50px;">
+    	<div style="height:300px;width:300px;background-color:blue;margin-left:50px;padding:50px;">
+        	<div style="height:50px;width:50px;background-color:red;margin-left:20px;padding:50px;">
+            	Welcome to CSS in Lightning
+            </div>
+        </div>
+    </div>
+</aura:application>
+
+
+
+Ex2 : Using Styles in Lightning
+---------------------------------
+
+Application:
+
+<aura:application extends="force:slds">
+	<!-- Inline CSS -->
+    <div class="box1"> 
+    	<div class="box2">
+        	<div class="box3">
+            	Welcome to CSS in Lightning
+            </div>
+        </div>
+    </div>
+</aura:application>
+
+
+Styles:
+-----------
+.THIS.box1 {
+    height:500px;
+    width:500px;
+    background-color:red;
+    margin-left:100px;
+    padding:50px;
+}
+.THIS .box2 {
+    height:300px; 
+    width:300px;
+    background-color:green;
+    margin-left:50px;
+    padding:50px;
+}
+.THIS .box3 {
+    height:50px;
+    width:50px;
+    background-color:blue;
+    margin-left:20px;
+    padding:50px;
+}
+
+
+--------------------------------------------------
+
+Example 2 :
+-----------
+CSS : 
+-----------
+Application:
+-----------
+<aura:application extends="force:slds">
+	<div class="box1">
+        <div class="box2">
+            <p><b>Personal Information</b></p>
+            <p>First Name		:	Venkat</p>	
+            <p>Last  Name		:	Vutla</p>
+            <p>City			:	Kandukur</p>
+            <p>Country			:	India</p>
+            <p>Address			:	Prakasam Dist, India, 523105.</p>
+            <p>Phone			:	+919705898616</p>
+            <p>EMail			:	nara.dotnet@gmail.com</p>
+        </div>
+        <div class="box2" style="height:170px !important">
+            <p><b>Job Information</b></p> 
+            <p>Company 	: 	Test Company</p>
+            <p>City		:	Test City</p>
+            <p>Country	:	Test Country</p>
+            <p>Address	:	Test Street,Test City,1234567.</p>
+        </div>
+    </div>
+</aura:application>
+
+
+Styles:
+-----------
+.THIS.box1 {
+    border:2px solid black;
+    width:500px;
+    margin-left:300px;
+    margin-top:50px;
+    height:550px;
+}
+.THIS .box2{
+    font-size:20px;
+    height:250px;
+    width:400px;
+    border:1px solid black;
+    margin:50px;
+    padding:10px;
+    border-radius:20px;
+}
+
+
+-------------------------------------------------
+SLDS: Salesforce Lightning Design System
+-------------------------------------------------
+<aura:application extends="force:slds">
+	<div class="box1">
+    	<div class="slds-p-top_x-large slds-p-left_large"> 
+        	Welcome to SLDS
+        </div>
+    </div>
+</aura:application>
+-------------------------------------------------
+
+!important property of css
+--------------------------------------------------
+The !important property in CSS is used to provide more weight (importance) than normal property. In CSS, the !important means
+that “this is important”, ignore all the subsequent rules, and apply !important rule and the !important keyword must be placed
+at the end of the line, immediately before the semicolon.
+
+h1 { 
+                color: blue ; 
+            } 
+            h1 { 
+                color:white !important; 
+            } 
+In above example white colour will applied instead of blue as it is marked important

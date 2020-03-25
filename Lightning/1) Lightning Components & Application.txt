@@ -1,0 +1,190 @@
+Agenda:
+---------
+1. Components
+2. Applications
+3. <aura:attribute />
+
+
+Lightning Component :
+------------------
+<aura:component >
+	<!-- Write your component body here -->
+    <!-- HTML Code + text content -->
+</aura:component>
+
+
+Lightning Application:
+---------------------------
+<aura:application >
+	
+</aura:application>
+
+
+VF Page:
+------------------
+<apex:page>
+	
+</apex:page>
+
+Component : CustomerDetails
+---------------------------
+
+<aura:component >
+	<!-- Write your component body here -->
+    <!-- HTML Code + text content -->
+    <br/><br/>
+    <div style="margin-left:200px;border:1px solid black;width:600px;">
+    	<b><u>Customer Personal Information:</u></b> <br/><br/>
+        First Name 	: 	Nara <br/>
+        Last  Name 	: 	Vutla <br/>
+        Phone		:	+919705898616 <br/>
+        Email		:	nara.dotnet@gmail.com <br/>
+        Company		:	Test Company <br/>
+        City		:	Kandukur <br/>
+        Country		:	India <br/>
+        Address		:	Kandukur, Prakasam District, India, 523105 <br/>
+    </div>
+    
+</aura:component>
+
+
+
+Applicaton : CustomerDetails_Application
+---------------------------------------------
+
+<aura:application >
+	<!-- Write your lightning application code -->
+    <c:CustomerDetails />
+</aura:application>
+
+
+
+---------------------------------------------
+Using HTML table inside the component:
+---------------------------------------------
+
+Component:
+------------------
+<aura:component >
+	<!-- Write your component body here -->
+    <!-- HTML Code + text content -->
+    <br/><br/>
+    <div style="margin-left:200px;border:1px solid black;width:500px;">
+    	<table style="padding:10px;">
+        	<tr> 
+                	<td colspan="2" >
+                        <center><b><br/>Customer Personal Information</b></center>
+                    </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	First Name
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">Nara</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	Last Name
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">Vutla</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	Company
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">Test Company</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	Phone
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">+919705898616</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	Country
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">India</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	City
+                </td>
+                <td>
+                    	<p style="margin-left:50px;">Kandukur</p>
+                </td>
+            </tr>
+            <tr style="height:10px;"></tr>
+            <tr>
+            	<td>
+                    	Address
+                </td>
+                <td>
+                    <p style="margin-left:50px;">Kandukur, Prakasam District, India, 523105</p> <br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+</aura:component>
+
+
+Application:
+------------------
+
+<aura:application >
+	<!-- Write your lightning application code -->
+    <c:CustomerDetails /> <br/>
+    <c:CustomerDetails />   
+   
+</aura:application>
+
+--------------------------------------------------------------------------------
+Serverside Controller:
+------------------------
+Apex class:
+
+public class className{
+	public String employeeName{get;set;}
+	public String employeeCity{get;set;}
+}
+
+
+Clientside Controller:
+------------------------
+<aura:attribute type="String" name="employeeName" default="Nara" required="true"/>
+global String employeeName; ---> Client side controller.
+
+public / global / private.
+
+public String employeeName = 'Nara'; // Default
+
+
+
+
+
+
+
+
+
+
+
+
+
+
